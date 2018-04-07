@@ -1,0 +1,43 @@
+{
+    "name": "scandesignsdk/enetpulse-parser",
+    "description": "Enetpulse parser",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martin Aarhof",
+            "email": "martin.aarhof@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SDM\\Enetpulse\\": "src"
+        }
+    },
+    "require": {
+        "php": "^7.2",
+        "doctrine/dbal": "^2.7"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SDM\\Enetpulse\\Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.0",
+        "phpunit/phpunit": "^6.0",
+        "phpstan/phpstan": "^0.9"
+    },
+    "scripts": {
+        "fix": [
+            "./vendor/bin/phpunit --coverage-html=.build",
+            "./vendor/bin/php-cs-fixer fix -v -q",
+            "./vendor/bin/phpstan analyze src --level 7 -q"
+        ],
+        "test": [
+            "./vendor/bin/phpunit --coverage-clover=coverage.xml",
+            "./vendor/bin/php-cs-fixer fix --diff --dry-run -v",
+            "./vendor/bin/phpstan analyze src --level 7 -q"
+        ]
+    }
+}
