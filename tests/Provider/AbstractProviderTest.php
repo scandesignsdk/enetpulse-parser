@@ -37,8 +37,13 @@ abstract class AbstractProviderTest extends TestCase
             $user = $this->connection->getUsername();
             $pass = $this->connection->getPassword();
             $db = $this->connection->getDatabase();
-            `mysql -u $user -p$pass -e "DROP DATABASE IF EXISTS $db"`;
-            `mysql -u $user -p$pass -e "CREATE DATABASE $db"`;
+            if ($pass) {
+                `mysql -u $user -p$pass -e "DROP DATABASE IF EXISTS $db"`;
+                `mysql -u $user -p$pass -e "CREATE DATABASE $db"`;
+            } else {
+                `mysql -u $user -e "DROP DATABASE IF EXISTS $db"`;
+                `mysql -u $user -e "CREATE DATABASE $db"`;
+            }
             $this->configuration = new Configuration($_ENV['DATABASE_URL']);
             $this->configuration->getConnection()->exec(file_get_contents(__DIR__.'/../fixture.sql'));
         } catch (DBALException $exception) {
