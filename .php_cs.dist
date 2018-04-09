@@ -1,6 +1,7 @@
 <?php
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__ . '/src')
+    ->in(__DIR__)
+    ->notPath('vendor')
 ;
 return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)

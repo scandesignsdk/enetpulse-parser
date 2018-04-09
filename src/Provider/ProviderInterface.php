@@ -2,9 +2,9 @@
 
 namespace SDM\Enetpulse\Provider;
 
-use SDM\Enetpulse\Authentication;
+use SDM\Enetpulse\Configuration;
 
 interface ProviderInterface
 {
-    public function __construct(Authentication $authentication);
+    public function __construct(Configuration $configuration);
 }

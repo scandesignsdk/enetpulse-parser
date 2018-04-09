@@ -5,8 +5,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Martin Aarhof",
-            "email": "martin.aarhof@gmail.com"
+            "name": "Martin Aarhof @ scandesignmedia.dk",
+            "email": "maa@scandesigns.dk"
         }
     ],
     "autoload": {
@@ -26,18 +26,24 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.0",
         "phpunit/phpunit": "^6.0",
-        "phpstan/phpstan": "^0.9"
+        "phpstan/phpstan": "^0.9",
+        "symfony/var-dumper": "^4.0",
+        "sensiolabs/security-checker": "^4.1"
     },
     "scripts": {
         "fix": [
+            "composer validate --strict -q",
             "./vendor/bin/phpunit --coverage-html=.build",
             "./vendor/bin/php-cs-fixer fix -v -q",
-            "./vendor/bin/phpstan analyze src --level 7 -q"
+            "./vendor/bin/phpstan analyze src --level 7 --no-progress",
+            "./vendor/bin/security-checker security:check -q"
         ],
         "test": [
+            "composer validate --strict -q",
             "./vendor/bin/phpunit --coverage-clover=coverage.xml",
             "./vendor/bin/php-cs-fixer fix --diff --dry-run -v",
-            "./vendor/bin/phpstan analyze src --level 7 -q"
+            "./vendor/bin/phpstan analyze src --level 7",
+            "./vendor/bin/security-checker security:check"
         ]
     }
 }

@@ -2,46 +2,46 @@
 
 namespace SDM\Enetpulse;
 
-use SDM\Enetpulse\Provider\MatchProvider;
+use SDM\Enetpulse\Provider\EventProvider;
 use SDM\Enetpulse\Provider\OddsProvider;
+use SDM\Enetpulse\Provider\ParticipantProvider;
 use SDM\Enetpulse\Provider\SportProvider;
-use SDM\Enetpulse\Provider\TeamProvider;
 use SDM\Enetpulse\Provider\TournamentProvider;
 
 class Generator
 {
     /**
-     * @var Authentication
+     * @var Configuration
      */
-    private $authentication;
+    private $configuration;
 
-    public function __construct(Authentication $authentication)
+    public function __construct(Configuration $configuration)
     {
-        $this->authentication = $authentication;
+        $this->configuration = $configuration;
     }
 
-    public function getMatchProvider(): MatchProvider
+    public function getEventProvider(): EventProvider
     {
-        return new MatchProvider($this->authentication);
+        return new EventProvider($this->configuration);
+    }
+
+    public function getParticipantProvider(): ParticipantProvider
+    {
+        return new ParticipantProvider($this->configuration);
     }
 
     public function getOddsProvider(): OddsProvider
     {
-        return new OddsProvider($this->authentication);
+        return new OddsProvider($this->configuration);
     }
 
     public function getTournamentProvider(): TournamentProvider
     {
-        return new TournamentProvider($this->authentication);
-    }
-
-    public function getTeamProvider(): TeamProvider
-    {
-        return new TeamProvider($this->authentication);
+        return new TournamentProvider($this->configuration);
     }
 
     public function getSportProvider(): SportProvider
     {
-        return new SportProvider($this->authentication);
+        return new SportProvider($this->configuration);
     }
 }

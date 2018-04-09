@@ -7,7 +7,6 @@ use SDM\Enetpulse\Utils\BetweenDate;
 
 class BetweenDateTest extends TestCase
 {
-
     public function testBetweenDate(): void
     {
         $between1 = new BetweenDate(new \DateTime());
@@ -18,5 +17,4 @@ class BetweenDateTest extends TestCase
         $this->assertInstanceOf(\DateTime::class, $between2->getFromDate());
         $this->assertInstanceOf(\DateTime::class, $between2->getToDate());
     }
-
 }
