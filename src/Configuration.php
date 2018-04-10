@@ -29,6 +29,11 @@ class Configuration
     private $tournamentTemplates = [];
 
     /**
+     * @var string[]
+     */
+    private $oddsCountryNames = [];
+
+    /**
      * @param string $databaseDsn mysql://username:password@host:3306/databasename
      */
     public function __construct(string $databaseDsn)
@@ -70,6 +75,20 @@ class Configuration
     }
 
     /**
+     * Set which odds providers country names that should be used.
+     *
+     * @param string[] $countryNames
+     *
+     * @return Configuration
+     */
+    public function setOddsProviderCountryNames(array $countryNames = []): self
+    {
+        $this->oddsCountryNames = $countryNames;
+
+        return $this;
+    }
+
+    /**
      * Set which tournament templates that should be viewed.
      *
      * @param int[] $tournamentTemplates
@@ -101,5 +120,15 @@ class Configuration
     public function getTournamentTemplates(): array
     {
         return $this->tournamentTemplates;
+    }
+
+    /**
+     * Which odds providers country names should be viewed.
+     *
+     * @return string[]
+     */
+    public function getOddsCountryNames(): array
+    {
+        return $this->oddsCountryNames;
     }
 }

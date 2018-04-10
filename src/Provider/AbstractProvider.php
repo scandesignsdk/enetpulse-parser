@@ -8,6 +8,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Utils\BetweenDate;
+use SDM\Enetpulse\Utils\Utils;
 
 abstract class AbstractProvider implements ProviderInterface
 {
@@ -24,6 +25,8 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * @codeCoverageIgnore
      *
+     * @throws DBALException
+     *
      * @return QueryBuilder
      */
     protected function getBuilder(): QueryBuilder
@@ -31,21 +34,12 @@ abstract class AbstractProvider implements ProviderInterface
         try {
             return $this->configuration->getConnection()->createQueryBuilder();
         } catch (DBALException $exception) {
-            echo $exception->getMessage();
-            exit;
+            throw $exception;
         }
-    }
-
-    protected function debugQuery(QueryBuilder $builder): void
-    {
-        dump($builder->getSQL(), $builder->getParameters());
-        exit;
     }
 
     /**
      * @param QueryBuilder $builder
-     *
-     * @codeCoverageIgnore
      *
      * @return \stdClass[]
      */
@@ -60,16 +54,15 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * @param QueryBuilder $builder
      *
-     * @codeCoverageIgnore
-     *
-     * @return \stdClass
+     * @return \stdClass|null
      */
-    protected function fetchSingle(QueryBuilder $builder): \stdClass
+    protected function fetchSingle(QueryBuilder $builder): ?\stdClass
     {
         /** @var Statement $result */
         $result = $builder->execute();
+        $fetch = $result->fetch(FetchMode::STANDARD_OBJECT);
 
-        return $result->fetch(FetchMode::STANDARD_OBJECT);
+        return $fetch ?: null;
     }
 
     protected function createDate(string $date): \DateTime
@@ -77,10 +70,19 @@ abstract class AbstractProvider implements ProviderInterface
         return new \DateTime($date);
     }
 
+    protected function setDateHigherThanToday(QueryBuilder $qb, string $field): void
+    {
+        $qb->andWhere(sprintf(
+            '(DATE_FORMAT(%s, "%%Y-%%m-%%d") > "%s")',
+            $field,
+            Utils::getToday()->format('Y-m-d')
+        ));
+    }
+
     protected function setDateBetweenStartEndField(QueryBuilder $qb, string $startField, string $endField, ?\DateTime $date = null): void
     {
         if (!$date) {
-            $date = new \DateTime();
+            $date = Utils::getToday();
         }
 
         $qb->andWhere(sprintf(
@@ -94,10 +96,10 @@ abstract class AbstractProvider implements ProviderInterface
     protected function setDateFieldBetweenDate(QueryBuilder $qb, string $dateField, BetweenDate $betweenDate): void
     {
         $qb->andWhere(sprintf(
-            '(DATE_FORMAT(%s, "%%Y-%%m-%%d") BETWEEN %s AND %s)',
+            '(DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s") BETWEEN "%s" AND "%s")',
             $dateField,
-            $betweenDate->getFromDate()->format('Y-m-d'),
-            $betweenDate->getToDate()->format('Y-m-d')
+            $betweenDate->getFromDate()->format('Y-m-d H:i:s'),
+            $betweenDate->getToDate()->format('Y-m-d  H:i:s')
         ));
     }
 
@@ -108,30 +110,7 @@ abstract class AbstractProvider implements ProviderInterface
     protected function removeDeleted(QueryBuilder $queryBuilder, array $tables): void
     {
         foreach ($tables as $table) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq($table.'.del', ':no_'.$table));
-            $queryBuilder->setParameter(':no_'.$table, 'no');
+            $queryBuilder->andWhere($queryBuilder->expr()->eq($table.'.del', '"no"'));
         }
-    }
-
-    /**
-     * @param mixed $item
-     *
-     * @return bool
-     */
-    protected function createBool($item): bool
-    {
-        if (\is_bool($item)) {
-            return $item;
-        }
-
-        if (\is_string($item)) {
-            return \in_array(mb_strtolower($item), ['yes', 'y', '1'], true);
-        }
-
-        if (\is_int($item)) {
-            return 0 !== $item;
-        }
-
-        return filter_var($item, FILTER_VALIDATE_BOOLEAN);
     }
 }

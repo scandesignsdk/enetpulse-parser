@@ -20,7 +20,7 @@ class SportProvider extends AbstractProvider
         return $sports;
     }
 
-    public function getSportByName(string $name): Sport
+    public function getSportByName(string $name): ?Sport
     {
         $qb = $this->queryBuilder();
         $qb
@@ -29,8 +29,11 @@ class SportProvider extends AbstractProvider
             )
         ;
         $qb->setParameter(':name', mb_strtolower($name));
+        if ($result = $this->fetchSingle($qb)) {
+            return $this->createObject($result);
+        }
 
-        return $this->createObject($this->fetchSingle($qb));
+        return null;
     }
 
     private function createObject(\stdClass $data): Sport

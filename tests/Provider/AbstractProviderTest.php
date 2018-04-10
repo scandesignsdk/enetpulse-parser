@@ -46,6 +46,9 @@ abstract class AbstractProviderTest extends TestCase
             }
             $this->configuration = new Configuration($_ENV['DATABASE_URL']);
             $this->configuration->getConnection()->exec(file_get_contents(__DIR__.'/../fixture.sql'));
+            if (\in_array('event', $this->getGroups(), true)) {
+                $this->configuration->getConnection()->exec(file_get_contents(__DIR__.'/../eventfixture.sql'));
+            }
         } catch (DBALException $exception) {
             echo $exception->getMessage();
             exit(1);

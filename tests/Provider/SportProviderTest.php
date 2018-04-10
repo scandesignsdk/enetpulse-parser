@@ -55,4 +55,14 @@ class SportProviderTest extends AbstractProviderTest
         $sport = $this->getProvider(null)->getSportByName('soccer');
         $this->assertInstanceOf(Sport::class, $sport);
     }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlGetSportByUnknownName(): void
+    {
+        $sport = $this->getProvider(null)->getSportByName('foobar');
+        $this->assertNull($sport);
+    }
 }

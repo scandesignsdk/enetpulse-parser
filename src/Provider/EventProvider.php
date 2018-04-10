@@ -18,12 +18,12 @@ class EventProvider extends AbstractProvider
      *
      * @return Event[]
      */
-    public function getUpcomingMatches(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getUpcomingEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
     {
         $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $betweenDate);
         $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
-        $qb->andWhere('e.startdate > NOW()');
-        $qb->setParameter(':status', 'not_started');
+        $this->setDateHigherThanToday($qb, 'e.startdate');
+        $qb->setParameter(':status', 'notstarted');
         $events = [];
         foreach ($this->fetchObjects($qb) as $item) {
             $events[] = $this->createObject($item);
@@ -40,7 +40,7 @@ class EventProvider extends AbstractProvider
      *
      * @return Event[]
      */
-    public function getResults(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getFinishedEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
     {
         return $this->getStatusMatches('finished', $limit, $tournaments, $tournamentStages, $betweenDate);
     }
@@ -53,9 +53,22 @@ class EventProvider extends AbstractProvider
      *
      * @return Event[]
      */
-    public function getLiveMatches(?int $limit = null, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getLiveEvents(?int $limit = null, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
     {
         return $this->getStatusMatches('inprogress', $limit, $tournaments, $tournamentStages, $betweenDate);
+    }
+
+    public function getEvent(int $eventId): ?Event
+    {
+        $qb = $this->queryBuilder(null);
+        $qb->andWhere($qb->expr()->eq('e.id', ':eventId'));
+        $qb->setParameter(':eventId', $eventId);
+
+        if ($result = $this->fetchSingle($qb)) {
+            return $this->createObject($result);
+        }
+
+        return null;
     }
 
     /**
@@ -82,7 +95,7 @@ class EventProvider extends AbstractProvider
 
     private function createObject(\stdClass $object): Event
     {
-        return new Event(
+        $event = new Event(
             $object->e_id,
             $object->e_name,
             new Tournament\TournamentStage(
@@ -106,9 +119,11 @@ class EventProvider extends AbstractProvider
                 )
             ),
             $this->createDate($object->e_startdate),
-            $object->e_status_type,
-            (new ParticipantProvider($this->configuration))->getParticipantFromEventId($object->e_id)
+            $object->e_status_type
         );
+        $event->setParticipants((new ParticipantProvider($this->configuration))->getParticipantsFromEvent($event));
+
+        return $event;
     }
 
     /**
@@ -119,12 +134,12 @@ class EventProvider extends AbstractProvider
      *
      * @return QueryBuilder
      */
-    protected function queryBuilder(?int $limit, array $tournaments, array $stages, ?BetweenDate $betweenDate = null): QueryBuilder
+    protected function queryBuilder(?int $limit, array $tournaments = [], array $stages = [], ?BetweenDate $betweenDate = null): QueryBuilder
     {
         $qb = $this->getBuilder();
         $qb
             // Event
-            ->from('event', 'e')
+            ->from('`event`', 'e')
             ->addSelect('e.id as e_id', 'e.name as e_name', 'e.startdate as e_startdate', 'e.status_type as e_status_type')
             // Tournament stage
             ->innerJoin('e', 'tournament_stage', 'ts', 'e.tournament_stageFK = ts.id')
@@ -133,13 +148,13 @@ class EventProvider extends AbstractProvider
             ->innerJoin('ts', 'country', 'country', 'ts.countryFK = country.id')
             ->addSelect('country.id as country_id', 'country.name as country_name')
             // Tournament
-            ->innerJoin('ts', 'tournament', 't', 'ts.tourmanentFK = t.id')
+            ->innerJoin('ts', 'tournament', 't', 'ts.tournamentFK = t.id')
             ->addSelect('t.id as t_id', 't.name as t_name')
             // Tournament Template
             ->innerJoin('t', 'tournament_template', 'tt', 't.tournament_templateFK = tt.id')
             ->addSelect('tt.id as tt_id', 'tt.name as tt_name', 'tt.gender as tt_gender')
             // Sport
-            ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = s.id')
+            ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
         ;
         $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);

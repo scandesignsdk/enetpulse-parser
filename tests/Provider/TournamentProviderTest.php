@@ -170,6 +170,16 @@ class TournamentProviderTest extends AbstractProviderTest
      * @group mysql
      * @requires extension pdo_mysql
      */
+    public function testMysqlGetActiveTournaments(): void
+    {
+        $tournaments = $this->getProvider(null)->getTournaments(null, true);
+        $this->assertCount(2, $tournaments);
+    }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
     public function testMysqlTournament(): void
     {
         $tournament = $this->getProvider(null)->getTournamentByStageId(850150);
@@ -178,6 +188,7 @@ class TournamentProviderTest extends AbstractProviderTest
         $this->assertCount(1, $tournament->getStages());
         $this->assertSame('2017/2018', $tournament->getName());
         $this->assertSame('Champions League Qualification', $tournament->getStages()[0]->getName());
+        $this->assertInstanceOf(Tournament::class, $tournament->getStages()[0]->getTournament());
     }
 
     /**

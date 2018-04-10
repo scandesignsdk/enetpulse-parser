@@ -7,6 +7,7 @@
 >
     <php>
         <env name="DATABASE_URL" value="mysql://travis@localhost/test" />
+        <env name="MOCK_TODAY" value="2017-09-13" />
     </php>
     <testsuites>
         <testsuite name="SDM \\ Enetpulse parser">

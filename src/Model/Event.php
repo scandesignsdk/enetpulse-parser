@@ -89,9 +89,9 @@ class Event
     }
 
     /**
-     * @param array|Participant[] $participants
+     * @param Participant[] $participants
      *
-     * @return $this
+     * @return Event
      */
     public function setParticipants(array $participants): self
     {

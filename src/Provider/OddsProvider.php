@@ -4,9 +4,12 @@ namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use SDM\Enetpulse\Model\Odds;
+use SDM\Enetpulse\Utils\Utils;
 
 class OddsProvider extends AbstractProvider
 {
+    private static $odds = [];
+
     /**
      * @param int $participantId
      *
@@ -16,7 +19,7 @@ class OddsProvider extends AbstractProvider
     {
         $qb = $this->queryBuilder($participantId);
 
-        return $this->createObject($qb);
+        return $this->build($qb);
     }
 
     /**
@@ -24,25 +27,26 @@ class OddsProvider extends AbstractProvider
      *
      * @return Odds[]
      */
-    private function createObject(QueryBuilder $qb): array
+    private function build(QueryBuilder $qb): array
     {
-        $odds = [];
         foreach ($this->fetchObjects($qb) as $item) {
-            $this->createOdds($item, $odds);
+            $this->createObject($item);
         }
 
-        return $odds;
+        $odds = self::$odds;
+        self::$odds = [];
+
+        return array_values($odds);
     }
 
     /**
      * @param \stdClass $object
-     * @param Odds[]    $odds
      */
-    private function createOdds(\stdClass $object, array &$odds): void
+    private function createObject(\stdClass $object): void
     {
         $id = $object->o_id;
-        if (isset($odds[$id])) {
-            $item = $odds[$id];
+        if (isset(self::$odds[$id])) {
+            $item = self::$odds[$id];
         } else {
             $item = new Odds(
                 $object->o_id,
@@ -58,7 +62,7 @@ class OddsProvider extends AbstractProvider
                 $object->op_name,
                 $object->op_url,
                 $object->country_name,
-                $this->createBool($object->op_bookmaker)
+                Utils::createBool($object->op_bookmaker)
             ),
             $object->b_odds,
             $object->b_odds_old,
@@ -66,6 +70,8 @@ class OddsProvider extends AbstractProvider
             $object->b_currency,
             $object->b_couponkey
         ));
+
+        self::$odds[$id] = $item;
     }
 
     protected function queryBuilder(int $participantId): QueryBuilder
@@ -92,20 +98,21 @@ class OddsProvider extends AbstractProvider
             $qb->andWhere($qb->expr()->in('op.id', $providers));
         }
 
+        if ($countryNames = $this->configuration->getOddsCountryNames()) {
+            $qb->andWhere($qb->expr()->in('c.name', array_map(function ($countryName) { return '"'.$countryName.'"'; }, $countryNames)));
+        }
+
         $qb
             ->andWhere(
                 $qb->expr()->eq('op.active', ':op_active'),
                 $qb->expr()->eq('b.active', ':b_active')
             )
         ;
+        $qb->setParameter(':op_active', 'yes');
+        $qb->setParameter(':b_active', 'yes');
 
-        $qb
-            ->andWhere(
-                $qb->expr()->eq('o.iparam', ':participantId'),
-                $qb->expr()->eq('o.type', ':type')
-            )
+        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'))
             ->setParameter(':participantId', $participantId)
-            ->setParameter(':type', '1x2')
         ;
 
         return $qb;

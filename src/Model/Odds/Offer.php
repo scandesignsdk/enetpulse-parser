@@ -30,7 +30,7 @@ class Offer
     private $volume;
 
     /**
-     * @var string
+     * @var null|string
      */
     private $currency;
 
@@ -46,7 +46,7 @@ class Offer
         $this->odds = $odds;
         $this->oldOdds = $oldOdds;
         $this->volume = $volume;
-        $this->currency = $currency;
+        $this->currency = 'none' === $currency ? null : $currency;
         $this->couponkey = $couponkey;
     }
 
@@ -75,7 +75,7 @@ class Offer
         return $this->volume;
     }
 
-    public function getCurrency(): string
+    public function getCurrency(): ?string
     {
         return $this->currency;
     }
