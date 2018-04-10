@@ -23,7 +23,7 @@ class EventProviderTest extends AbstractProviderTest
      * @group event
      * @requires extension pdo_mysql
      */
-    public function testGetUpcomingMatches(): void
+    public function testGetUpcoming(): void
     {
         $upcoming = $this->getProvider(null)->getUpcomingEvents();
         $this->assertCount(8, $upcoming);
@@ -34,7 +34,7 @@ class EventProviderTest extends AbstractProviderTest
      * @group event
      * @requires extension pdo_mysql
      */
-    public function testGetResults(): void
+    public function testGetFinishedResults(): void
     {
         $results = $this->getProvider(null)->getFinishedEvents();
         $this->assertCount(15, $results);
@@ -45,7 +45,7 @@ class EventProviderTest extends AbstractProviderTest
      * @group event
      * @requires extension pdo_mysql
      */
-    public function testGetLiveMatches(): void
+    public function testGetLive(): void
     {
         $results = $this->getProvider(null)->getLiveEvents();
         $this->assertCount(1, $results);
@@ -164,6 +164,23 @@ class EventProviderTest extends AbstractProviderTest
      * @group event
      * @requires extension pdo_mysql
      */
+    public function testGetEventSort(): void
+    {
+        $events = $this->getProvider(null)->getUpcomingEvents(1);
+        $this->assertSame('Paris Saint Germain-Real Madrid', $events[0]->getName());
+
+        $events = $this->getProvider(null)->getLiveEvents(1);
+        $this->assertSame('Bayern Munich-Besiktas', $events[0]->getName());
+
+        $events = $this->getProvider(null)->getFinishedEvents(1);
+        $this->assertSame('Shakhtar Donetsk-Roma', $events[0]->getName());
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
     public function testGetEventTournaments(): void
     {
         $mock = $this->getMockBuilder(Tournament::class)->disableOriginalConstructor()->getMock();
@@ -245,5 +262,41 @@ class EventProviderTest extends AbstractProviderTest
         $event = $this->getProvider(null, $configuration)->getEvent(2680944);
         $o = $event->getParticipants()[0]->getOdds()[0];
         $this->assertCount(1, $o->getOffers());
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testGetYesterday(): void
+    {
+        $_ENV['MOCK_TODAY'] = '2017-05-16';
+        $events = $this->getProvider(null)->getYesterdayEvents();
+        $this->assertCount(0, $events);
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testGetToday(): void
+    {
+        $_ENV['MOCK_TODAY'] = '2017-05-16';
+        $events = $this->getProvider(null)->getTodayEvents();
+        $this->assertCount(1, $events);
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testGetTomorrow(): void
+    {
+        $_ENV['MOCK_TODAY'] = '2017-05-16';
+        $events = $this->getProvider(null)->getTomorrowEvents();
+        $this->assertCount(1, $events);
     }
 }

@@ -99,7 +99,7 @@ abstract class AbstractProvider implements ProviderInterface
             '(DATE_FORMAT(%s, "%%Y-%%m-%%d %%H:%%i:%%s") BETWEEN "%s" AND "%s")',
             $dateField,
             $betweenDate->getFromDate()->format('Y-m-d H:i:s'),
-            $betweenDate->getToDate()->format('Y-m-d  H:i:s')
+            $betweenDate->getToDate()->format('Y-m-d H:i:s')
         ));
     }
 
