@@ -21,6 +21,11 @@ class Configuration
     /**
      * @var int[]
      */
+    private $sports = [];
+
+    /**
+     * @var int[]
+     */
     private $oddsProviders = [];
 
     /**
@@ -58,6 +63,20 @@ class Configuration
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Set which sports you only want to be used
+     *
+     * @param array $sports
+     *
+     * @return Configuration
+     */
+    public function setSports(array $sports = []): self
+    {
+        $this->sports = $sports;
+
+        return $this;
     }
 
     /**
@@ -100,6 +119,16 @@ class Configuration
         $this->tournamentTemplates = $tournamentTemplates;
 
         return $this;
+    }
+
+    /**
+     * Get which sports should only be used
+     *
+     * @return int[]
+     */
+    public function getSports(): array
+    {
+        return $this->sports;
     }
 
     /**

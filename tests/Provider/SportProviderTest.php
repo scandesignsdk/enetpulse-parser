@@ -2,15 +2,16 @@
 
 namespace SDM\Enetpulse\Tests\Provider;
 
+use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Provider\SportProvider;
 use SDM\Enetpulse\Utils\Data;
 
 class SportProviderTest extends AbstractProviderTest
 {
-    private function getProvider($return): SportProvider
+    private function getProvider($return, Configuration $configuration = null): SportProvider
     {
-        return $this->createProvider(SportProvider::class, $return);
+        return $this->createProvider(SportProvider::class, $return, $configuration);
     }
 
     public function testGetSports(): void
@@ -44,6 +45,19 @@ class SportProviderTest extends AbstractProviderTest
     {
         $sports = $this->getProvider(null)->getSports();
         $this->assertCount(2, $sports);
+    }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlGetSportsWithConfiguration(): void
+    {
+        $config = $this->configuration;
+        $config->setSports([1]);
+
+        $sports = $this->getProvider(null)->getSports();
+        $this->assertCount(1, $sports);
     }
 
     /**

@@ -221,6 +221,10 @@ class EventProvider extends AbstractProvider
         ;
         $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
 
+        if ($sports = $this->configuration->getSports()) {
+            $qb->andWhere($qb->expr()->in('sport.id', $sports));
+        }
+
         if ($tournamentTemplates = $this->configuration->getTournamentTemplates()) {
             $qb->andWhere($qb->expr()->in('tt.id', $tournamentTemplates));
         }

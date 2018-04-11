@@ -50,6 +50,10 @@ class SportProvider extends AbstractProvider
         ;
         $this->removeDeleted($qb, ['sport']);
 
+        if ($sports = $this->configuration->getSports()) {
+            $qb->andWhere($qb->expr()->in('sport.id', $sports));
+        }
+
         return $qb;
     }
 }

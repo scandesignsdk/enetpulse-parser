@@ -170,6 +170,18 @@ class TournamentProviderTest extends AbstractProviderTest
      * @group mysql
      * @requires extension pdo_mysql
      */
+    public function testMysqlGetTournamentsWithSportConfiguration(): void
+    {
+        $config = $this->configuration;
+        $config->setSports([1]);
+        $tournaments = $this->getProvider(null, $config)->getTournaments();
+        $this->assertCount(2, $tournaments);
+    }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
     public function testMysqlGetActiveTournaments(): void
     {
         $tournaments = $this->getProvider(null)->getTournaments(null, true);

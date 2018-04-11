@@ -191,6 +191,10 @@ class TournamentProvider extends AbstractProvider
             $qb->andWhere($qb->expr()->in('tt.id', $tournamentTemplates));
         }
 
+        if ($sports = $this->configuration->getSports()) {
+            $qb->andWhere($qb->expr()->in('sport.id', $sports));
+        }
+
         $qb
             ->addOrderBy('t.ut', 'DESC')
             ->addOrderBy('ts.startdate', 'DESC')

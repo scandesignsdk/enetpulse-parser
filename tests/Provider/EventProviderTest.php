@@ -315,4 +315,18 @@ class EventProviderTest extends AbstractProviderTest
         $event = $this->getProvider(null, $configuration)->getEvent(2680944);
         $this->assertInstanceOf(Event::class, $event);
     }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlSportConfiguration(): void
+    {
+        $configuration = $this->configuration;
+        $configuration->setSports([1]);
+
+        $event = $this->getProvider(null, $configuration)->getEvent(2680944);
+        $this->assertInstanceOf(Event::class, $event);
+    }
 }

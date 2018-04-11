@@ -16,7 +16,7 @@ Requires: PHP 7.2
 
 ### Configuration
 
-```php
+```
 <?php
 
 use SDM\Enetpulse\Configuration;
@@ -29,14 +29,17 @@ $config = new Configuration('mysql://root:root@localhost/enetpulse_test');
 // Which odds providers countries do we want to see
 $config->setOddsProviderCountryNames(['Denmark', 'International']);
 
-// We can also set specific odds providers by ID, get the ID from the table odds_provider
+// Which sports do we want, get the ID from the `sport` table
+$config->setSports([1]);
+
+// We can also set specific odds providers by ID, get the ID from the table `odds_provider`
 //$config->setOddsProviders([
 //    1,
 //    2,
 //    3,
 //]);
 
-// Which tournaments do we want to see, find the ID's from the table tournament_template
+// Which tournaments do we want to see, find the ID's from the table `tournament_template`
 $config->setTournamentTemplates([
     42,
     46,
@@ -51,7 +54,7 @@ $config->setTournamentTemplates([
 
 ### Events
 
-```php
+```
 <?php
 $events = (new \SDM\Enetpulse\Generator($config))
     ->getEventProvider()
@@ -70,7 +73,7 @@ $events = (new \SDM\Enetpulse\Generator($config))
 
 ##### Loop through events
 
-```php
+```
 <?php foreach ($events as $event): ?>
     <?php echo $event->getId(); ?>
     <?php $hometeam = $event->getParticipants()[0]; ?>
