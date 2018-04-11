@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -134,13 +136,13 @@ class TournamentProvider extends AbstractProvider
             $tournament = self::$tournaments[$id];
         } else {
             $tournament = new Tournament(
-                $object->t_id,
+                (int) $object->t_id,
                 $object->t_name,
                 new Tournament\TournamentTemplate(
-                    $object->tt_id,
+                    (int) $object->tt_id,
                     $object->tt_name,
                     new Sport(
-                        $object->sport_id,
+                        (int) $object->sport_id,
                         $object->sport_name
                     ),
                     $object->tt_gender
@@ -149,7 +151,7 @@ class TournamentProvider extends AbstractProvider
         }
 
         $tournament->addStage(new Tournament\TournamentStage(
-            $object->ts_id,
+            (int) $object->ts_id,
             $object->ts_name,
             $object->country_name,
             $this->createDate($object->ts_startdate),

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -49,24 +51,24 @@ class OddsProvider extends AbstractProvider
             $item = self::$odds[$id];
         } else {
             $item = new Odds(
-                $object->o_id,
+                (int) $object->o_id,
                 $object->o_scope,
                 $object->o_subtype
             );
         }
 
         $item->addOffer(new Odds\Offer(
-            $object->b_id,
+            (int) $object->b_id,
             new Odds\Provider(
-                $object->op_id,
+                (int) $object->op_id,
                 $object->op_name,
                 $object->op_url,
                 $object->country_name,
                 Utils::createBool($object->op_bookmaker)
             ),
-            $object->b_odds,
-            $object->b_odds_old,
-            $object->b_volume,
+            (float) $object->b_odds,
+            (float) $object->b_odds_old,
+            (int) $object->b_volume,
             $object->b_currency,
             $object->b_couponkey
         ));

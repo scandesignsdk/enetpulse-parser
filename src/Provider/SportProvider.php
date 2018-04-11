@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -38,7 +40,7 @@ class SportProvider extends AbstractProvider
 
     private function createObject(\stdClass $data): Sport
     {
-        return new Sport($data->id, $data->name);
+        return new Sport((int)$data->id, $data->name);
     }
 
     protected function queryBuilder(): QueryBuilder
