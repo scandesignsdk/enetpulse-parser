@@ -221,12 +221,20 @@ class EventProvider extends AbstractProvider
         ;
         $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
 
+        if ($tournamentTemplates = $this->configuration->getTournamentTemplates()) {
+            $qb->andWhere($qb->expr()->in('tt.id', $tournamentTemplates));
+        }
+
         if ($tournaments) {
-            $qb->andWhere($qb->expr()->in('t.id', array_map(function (Tournament $tournament) { return $tournament->getId(); }, $tournaments)));
+            $qb->andWhere($qb->expr()->in('t.id', array_map(function (Tournament $tournament) {
+                return $tournament->getId();
+            }, $tournaments)));
         }
 
         if ($stages) {
-            $qb->andWhere($qb->expr()->in('ts.id', array_map(function (Tournament\TournamentStage $stage) { return $stage->getId(); }, $stages)));
+            $qb->andWhere($qb->expr()->in('ts.id', array_map(function (Tournament\TournamentStage $stage) {
+                return $stage->getId();
+            }, $stages)));
         }
 
         if ($betweenDate) {

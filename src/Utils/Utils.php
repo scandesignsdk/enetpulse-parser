@@ -16,7 +16,7 @@ class Utils
         $runable = $builder->getSQL();
         if ($builder->getParameters()) {
             foreach ($builder->getParameters() as $key => $item) {
-                $runable = str_replace($key, \is_string($item) ? '"'.$item.'"' : $item, $runable);
+                $runable = str_replace($key, \is_string($item) ? '"' . $item . '"' : $item, $runable);
             }
         }
 

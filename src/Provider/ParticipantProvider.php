@@ -50,6 +50,7 @@ class ParticipantProvider extends AbstractProvider
                 $object->p_name,
                 $object->p_type,
                 $object->country_name,
+                sprintf('data:%s;base64,%s', $object->i_contenttype, $object->i_value),
                 (new OddsProvider($this->configuration))->getOddsByEventParticipantId($object->p_id),
                 [],
                 $event
@@ -76,11 +77,16 @@ class ParticipantProvider extends AbstractProvider
             // Result
             ->leftJoin('ep', 'result', 'r', 'r.event_participantsFK = ep.id')
             ->addSelect('r.value as r_value', 'r.result_code as r_result_code', 'r.ut as r_ut')
+            // Logo
+            ->leftJoin('p', 'image', 'i', 'p.id = objectFK')
+            ->addSelect('i.value as i_value', 'i.contenttype as i_contenttype')
         ;
 
         $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
 
         $qb
+            ->andWhere($qb->expr()->eq('i.object', '"participant"'))
+            ->andWhere($qb->expr()->eq('i.type', '"logo"'))
             ->andWhere($qb->expr()->eq('ep.eventFK', ':eventId'))
             ->setParameter(':eventId', $eventId)
             ->addOrderBy('ep.number', 'ASC')

@@ -38,8 +38,8 @@ abstract class AbstractProviderTest extends TestCase
             $pass = $this->connection->getPassword();
             $db = $this->connection->getDatabase();
             if ($pass) {
-                `mysql -u $user -p$pass -e "DROP DATABASE IF EXISTS $db"`;
-                `mysql -u $user -p$pass -e "CREATE DATABASE $db"`;
+                `MYSQL_PWD=$pass mysql -u $user -e "DROP DATABASE IF EXISTS $db"`;
+                `MYSQL_PWD=$pass mysql -u $user -e "CREATE DATABASE $db"`;
             } else {
                 `mysql -u $user -e "DROP DATABASE IF EXISTS $db"`;
                 `mysql -u $user -e "CREATE DATABASE $db"`;

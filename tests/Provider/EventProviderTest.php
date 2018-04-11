@@ -74,6 +74,8 @@ class EventProviderTest extends AbstractProviderTest
         $this->assertSame('Sevilla', $p->getName());
         $this->assertSame('Spain', $p->getCountry());
         $this->assertSame('team', $p->getType());
+        $this->assertStringStartsWith('data:image/png', $p->getImage());
+        $this->assertContains('saxORoJKrZz4GlVQWRWLcIdnoaChBsHEH2ilJ7LelflH1tRd8SJC7ezIwQ9rtsHPjS', $p->getImage());
         $this->assertInstanceOf(Result::class, $p->getFirstResult());
         $this->assertSame('0', $p->getFirstResult()->getResult());
         $this->assertSame('finalresult', $p->getFirstResult()->getResultCode());
@@ -298,5 +300,19 @@ class EventProviderTest extends AbstractProviderTest
         $_ENV['MOCK_TODAY'] = '2017-05-16';
         $events = $this->getProvider(null)->getTomorrowEvents();
         $this->assertCount(1, $events);
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlTournamentConfiguration(): void
+    {
+        $configuration = $this->configuration;
+        $configuration->setTournamentTemplates([42]);
+
+        $event = $this->getProvider(null, $configuration)->getEvent(2680944);
+        $this->assertInstanceOf(Event::class, $event);
     }
 }

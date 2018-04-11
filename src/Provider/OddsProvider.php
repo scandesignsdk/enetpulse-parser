@@ -99,7 +99,9 @@ class OddsProvider extends AbstractProvider
         }
 
         if ($countryNames = $this->configuration->getOddsCountryNames()) {
-            $qb->andWhere($qb->expr()->in('c.name', array_map(function ($countryName) { return '"'.$countryName.'"'; }, $countryNames)));
+            $qb->andWhere($qb->expr()->in('c.name', array_map(function ($countryName) {
+                return '"' . $countryName . '"';
+            }, $countryNames)));
         }
 
         $qb

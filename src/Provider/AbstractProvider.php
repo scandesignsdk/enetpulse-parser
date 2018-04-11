@@ -110,7 +110,7 @@ abstract class AbstractProvider implements ProviderInterface
     protected function removeDeleted(QueryBuilder $queryBuilder, array $tables): void
     {
         foreach ($tables as $table) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq($table.'.del', '"no"'));
+            $queryBuilder->andWhere($queryBuilder->expr()->eq($table . '.del', '"no"'));
         }
     }
 }

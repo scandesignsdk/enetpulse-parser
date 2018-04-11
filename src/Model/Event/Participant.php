@@ -42,22 +42,28 @@ class Participant
      * @var Event
      */
     private $event;
+    /**
+     * @var string
+     */
+    private $image;
 
     /**
      * @param int      $id
      * @param string   $name
      * @param string   $type
      * @param string   $country
+     * @param string   $image
      * @param Odds[]   $odds
      * @param Result[] $results
      * @param Event    $event
      */
-    public function __construct(int $id, string $name, string $type, string $country, array $odds, array $results, Event $event)
+    public function __construct(int $id, string $name, string $type, string $country, string $image, array $odds, array $results, Event $event)
     {
         $this->id = $id;
         $this->name = $name;
         $this->type = $type;
         $this->country = $country;
+        $this->image = $image;
         $this->odds = $odds;
         $this->results = $results;
         $this->event = $event;
@@ -81,6 +87,11 @@ class Participant
     public function getCountry(): string
     {
         return $this->country;
+    }
+
+    public function getImage(): string
+    {
+        return $this->image;
     }
 
     /**
