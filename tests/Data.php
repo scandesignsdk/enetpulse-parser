@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SDM\Enetpulse\Utils;
+namespace SDM\Enetpulse\Tests;
 
 class Data extends \stdClass
 {

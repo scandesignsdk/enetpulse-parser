@@ -5,7 +5,7 @@ namespace SDM\Enetpulse\Tests\Provider;
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Provider\SportProvider;
-use SDM\Enetpulse\Utils\Data;
+use SDM\Enetpulse\Tests\Data;
 
 class SportProviderTest extends AbstractProviderTest
 {

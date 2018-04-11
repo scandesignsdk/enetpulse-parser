@@ -6,7 +6,7 @@ use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Model\Tournament;
 use SDM\Enetpulse\Provider\TournamentProvider;
-use SDM\Enetpulse\Utils\Data;
+use SDM\Enetpulse\Tests\Data;
 
 class TournamentProviderTest extends AbstractProviderTest
 {
