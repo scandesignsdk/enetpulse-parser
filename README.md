@@ -24,7 +24,7 @@ use SDM\Enetpulse\Configuration;
 require __DIR__.'/../vendor/autoload.php';
 
 // Setup our database connection
-$config = new Configuration('mysql://root:WWXeOM8NgfNMT4h9j6B30Jyx6@mysql4.scandesigns.dk/oddsforum_dk_db');
+$config = new Configuration('mysql://root:root@localhost/enetpulse_test');
 
 // Which odds providers countries do we want to see
 $config->setOddsProviderCountryNames(['Denmark', 'International']);
