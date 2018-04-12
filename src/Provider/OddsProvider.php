@@ -46,7 +46,7 @@ class OddsProvider extends AbstractProvider
      */
     private function createObject(\stdClass $object): void
     {
-        $id = $object->o_id;
+        $id = $object->o_scope . $object->o_subtype;
         if (isset(self::$odds[$id])) {
             $item = self::$odds[$id];
         } else {

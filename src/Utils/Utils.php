@@ -22,7 +22,12 @@ class Utils
             }
         }
 
-        dump($builder->getSQL(), $builder->getParameters(), $runable);
+        if (\function_exists('dump')) {
+            dump($builder->getSQL(), $builder->getParameters(), $runable);
+            exit;
+        }
+
+        var_dump($builder->getSQL(), $builder->getParameters(), $runable);
         exit;
     }
 
