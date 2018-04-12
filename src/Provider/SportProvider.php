@@ -38,6 +38,22 @@ class SportProvider extends AbstractProvider
         return null;
     }
 
+    public function getSportById(int $id): ?Sport
+    {
+        $qb = $this->queryBuilder();
+        $qb
+            ->andWhere(
+                $qb->expr()->eq('sport.id', ':id')
+            )
+        ;
+        $qb->setParameter(':id', $id);
+        if ($result = $this->fetchSingle($qb)) {
+            return $this->createObject($result);
+        }
+
+        return null;
+    }
+
     private function createObject(\stdClass $data): Sport
     {
         return new Sport((int)$data->id, $data->name);
