@@ -66,12 +66,13 @@ class SportProvider extends AbstractProvider
             ->select(['sport.id', 'sport.name'])
             ->from('sport', 'sport')
         ;
-        $this->removeDeleted($qb, ['sport']);
+        $qb->addOrderBy('sport.name', 'ASC');
 
         if ($sports = $this->configuration->getSports()) {
             $qb->andWhere($qb->expr()->in('sport.id', $sports));
         }
 
+        $this->removeDeleted($qb, ['sport']);
         return $qb;
     }
 }

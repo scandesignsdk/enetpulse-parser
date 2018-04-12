@@ -183,7 +183,6 @@ class TournamentProvider extends AbstractProvider
             ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
         ;
-        $this->removeDeleted($qb, ['ts', 'tt', 'country', 'sport']);
 
         if ($onlyActive) {
             $this->setDateBetweenStartEndField($qb, 'ts.startdate', 'ts.enddate');
@@ -198,10 +197,14 @@ class TournamentProvider extends AbstractProvider
         }
 
         $qb
+            ->addOrderBy('tt.name', 'ASC')
+            ->addOrderBy('t.name', 'ASC')
+            ->addOrderBy('ts.name', 'ASC')
             ->addOrderBy('t.ut', 'DESC')
             ->addOrderBy('ts.startdate', 'DESC')
         ;
 
+        $this->removeDeleted($qb, ['ts', 'tt', 'country', 'sport']);
         return $qb;
     }
 }

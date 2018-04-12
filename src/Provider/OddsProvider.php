@@ -94,8 +94,6 @@ class OddsProvider extends AbstractProvider
             ->addSelect('c.name as country_name')
         ;
 
-        $this->removeDeleted($qb, ['o', 'b', 'op', 'c']);
-
         if ($providers = $this->configuration->getOddsProviders()) {
             $qb->andWhere($qb->expr()->in('op.id', $providers));
         }
@@ -106,19 +104,17 @@ class OddsProvider extends AbstractProvider
             }, $countryNames)));
         }
 
-        $qb
-            ->andWhere(
-                $qb->expr()->eq('op.active', ':op_active'),
-                $qb->expr()->eq('b.active', ':b_active')
-            )
-        ;
+        $qb->andWhere(
+            $qb->expr()->eq('op.active', ':op_active'),
+            $qb->expr()->eq('b.active', ':b_active')
+        );
         $qb->setParameter(':op_active', 'yes');
         $qb->setParameter(':b_active', 'yes');
 
-        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'))
-            ->setParameter(':participantId', $participantId)
-        ;
+        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'));
+        $qb->setParameter(':participantId', $participantId);
 
+        $this->removeDeleted($qb, ['o', 'b', 'op', 'c']);
         return $qb;
     }
 }

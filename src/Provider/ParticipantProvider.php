@@ -84,8 +84,6 @@ class ParticipantProvider extends AbstractProvider
             ->addSelect('i.value as i_value', 'i.contenttype as i_contenttype')
         ;
 
-        $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
-
         $qb
             ->andWhere($qb->expr()->eq('i.object', '"participant"'))
             ->andWhere($qb->expr()->eq('i.type', '"logo"'))
@@ -94,6 +92,7 @@ class ParticipantProvider extends AbstractProvider
             ->addOrderBy('ep.number', 'ASC')
         ;
 
+        $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
         return $qb;
     }
 }

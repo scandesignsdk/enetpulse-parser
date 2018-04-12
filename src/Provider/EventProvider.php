@@ -221,7 +221,6 @@ class EventProvider extends AbstractProvider
             ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
         ;
-        $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
 
         if ($sports = $this->configuration->getSports()) {
             $qb->andWhere($qb->expr()->in('sport.id', $sports));
@@ -251,6 +250,7 @@ class EventProvider extends AbstractProvider
             $qb->setMaxResults($limit);
         }
 
+        $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
         return $qb;
     }
 }
