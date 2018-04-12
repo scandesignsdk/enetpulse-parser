@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Model;
 
 use SDM\Enetpulse\Model\Tournament\TournamentStage;

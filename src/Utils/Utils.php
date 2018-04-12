@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Utils;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -20,7 +22,12 @@ class Utils
             }
         }
 
-        dump($builder->getSQL(), $builder->getParameters(), $runable);
+        if (\function_exists('dump')) {
+            dump($builder->getSQL(), $builder->getParameters(), $runable);
+            exit;
+        }
+
+        var_dump($builder->getSQL(), $builder->getParameters(), $runable);
         exit;
     }
 
@@ -56,7 +63,7 @@ class Utils
         if (isset($_ENV['MOCK_TODAY'])) {
             [$year, $month, $day] = explode('-', $_ENV['MOCK_TODAY']);
 
-            return (new \DateTime())->setDate($year, $month, $day);
+            return (new \DateTime())->setDate((int)$year, (int)$month, (int)$day);
         }
 
         return new \DateTime();

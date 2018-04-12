@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -36,9 +38,25 @@ class SportProvider extends AbstractProvider
         return null;
     }
 
+    public function getSportById(int $id): ?Sport
+    {
+        $qb = $this->queryBuilder();
+        $qb
+            ->andWhere(
+                $qb->expr()->eq('sport.id', ':id')
+            )
+        ;
+        $qb->setParameter(':id', $id);
+        if ($result = $this->fetchSingle($qb)) {
+            return $this->createObject($result);
+        }
+
+        return null;
+    }
+
     private function createObject(\stdClass $data): Sport
     {
-        return new Sport($data->id, $data->name);
+        return new Sport((int)$data->id, $data->name);
     }
 
     protected function queryBuilder(): QueryBuilder
@@ -48,12 +66,13 @@ class SportProvider extends AbstractProvider
             ->select(['sport.id', 'sport.name'])
             ->from('sport', 'sport')
         ;
-        $this->removeDeleted($qb, ['sport']);
+        $qb->addOrderBy('sport.name', 'ASC');
 
         if ($sports = $this->configuration->getSports()) {
             $qb->andWhere($qb->expr()->in('sport.id', $sports));
         }
 
+        $this->removeDeleted($qb, ['sport']);
         return $qb;
     }
 }

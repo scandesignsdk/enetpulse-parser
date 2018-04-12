@@ -5,7 +5,7 @@ namespace SDM\Enetpulse\Tests\Provider;
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Provider\SportProvider;
-use SDM\Enetpulse\Utils\Data;
+use SDM\Enetpulse\Tests\Data;
 
 class SportProviderTest extends AbstractProviderTest
 {
@@ -77,6 +77,26 @@ class SportProviderTest extends AbstractProviderTest
     public function testMysqlGetSportByUnknownName(): void
     {
         $sport = $this->getProvider(null)->getSportByName('foobar');
+        $this->assertNull($sport);
+    }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlGetSportById(): void
+    {
+        $sport = $this->getProvider(null)->getSportById(1);
+        $this->assertInstanceOf(Sport::class, $sport);
+    }
+
+    /**
+     * @group mysql
+     * @requires extension pdo_mysql
+     */
+    public function testMysqlGetSportByIdUnknownId(): void
+    {
+        $sport = $this->getProvider(null)->getSportById(99999);
         $this->assertNull($sport);
     }
 }

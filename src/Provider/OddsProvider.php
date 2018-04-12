@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -44,29 +46,29 @@ class OddsProvider extends AbstractProvider
      */
     private function createObject(\stdClass $object): void
     {
-        $id = $object->o_id;
+        $id = $object->o_scope . $object->o_subtype;
         if (isset(self::$odds[$id])) {
             $item = self::$odds[$id];
         } else {
             $item = new Odds(
-                $object->o_id,
+                (int) $object->o_id,
                 $object->o_scope,
                 $object->o_subtype
             );
         }
 
         $item->addOffer(new Odds\Offer(
-            $object->b_id,
+            (int) $object->b_id,
             new Odds\Provider(
-                $object->op_id,
+                (int) $object->op_id,
                 $object->op_name,
                 $object->op_url,
                 $object->country_name,
                 Utils::createBool($object->op_bookmaker)
             ),
-            $object->b_odds,
-            $object->b_odds_old,
-            $object->b_volume,
+            (float) $object->b_odds,
+            (float) $object->b_odds_old,
+            (int) $object->b_volume,
             $object->b_currency,
             $object->b_couponkey
         ));
@@ -92,8 +94,6 @@ class OddsProvider extends AbstractProvider
             ->addSelect('c.name as country_name')
         ;
 
-        $this->removeDeleted($qb, ['o', 'b', 'op', 'c']);
-
         if ($providers = $this->configuration->getOddsProviders()) {
             $qb->andWhere($qb->expr()->in('op.id', $providers));
         }
@@ -104,19 +104,17 @@ class OddsProvider extends AbstractProvider
             }, $countryNames)));
         }
 
-        $qb
-            ->andWhere(
-                $qb->expr()->eq('op.active', ':op_active'),
-                $qb->expr()->eq('b.active', ':b_active')
-            )
-        ;
+        $qb->andWhere(
+            $qb->expr()->eq('op.active', ':op_active'),
+            $qb->expr()->eq('b.active', ':b_active')
+        );
         $qb->setParameter(':op_active', 'yes');
         $qb->setParameter(':b_active', 'yes');
 
-        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'))
-            ->setParameter(':participantId', $participantId)
-        ;
+        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'));
+        $qb->setParameter(':participantId', $participantId);
 
+        $this->removeDeleted($qb, ['o', 'b', 'op', 'c']);
         return $qb;
     }
 }

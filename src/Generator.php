@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse;
 
 use SDM\Enetpulse\Provider\EventProvider;

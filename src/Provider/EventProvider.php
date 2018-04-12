@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -158,22 +160,22 @@ class EventProvider extends AbstractProvider
     private function createObject(\stdClass $object): Event
     {
         $event = new Event(
-            $object->e_id,
+            (int) $object->e_id,
             $object->e_name,
             new Tournament\TournamentStage(
-                $object->ts_id,
+                (int) $object->ts_id,
                 $object->ts_name,
                 $object->country_name,
                 $this->createDate($object->ts_startdate),
                 $this->createDate($object->ts_enddate),
                 new Tournament(
-                    $object->t_id,
+                    (int) $object->t_id,
                     $object->t_name,
                     new Tournament\TournamentTemplate(
-                        $object->tt_id,
+                        (int) $object->tt_id,
                         $object->tt_name,
                         new Sport(
-                            $object->sport_id,
+                            (int) $object->sport_id,
                             $object->sport_name
                         ),
                         $object->tt_gender
@@ -219,7 +221,6 @@ class EventProvider extends AbstractProvider
             ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
         ;
-        $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
 
         if ($sports = $this->configuration->getSports()) {
             $qb->andWhere($qb->expr()->in('sport.id', $sports));
@@ -249,6 +250,7 @@ class EventProvider extends AbstractProvider
             $qb->setMaxResults($limit);
         }
 
+        $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
         return $qb;
     }
 }

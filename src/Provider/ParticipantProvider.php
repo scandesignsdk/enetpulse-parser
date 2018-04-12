@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -46,12 +48,12 @@ class ParticipantProvider extends AbstractProvider
             $p = self::$participant[$object->p_id];
         } else {
             $p = new Participant(
-                $object->p_id,
+                (int) $object->p_id,
                 $object->p_name,
                 $object->p_type,
                 $object->country_name,
                 sprintf('data:%s;base64,%s', $object->i_contenttype, $object->i_value),
-                (new OddsProvider($this->configuration))->getOddsByEventParticipantId($object->p_id),
+                (new OddsProvider($this->configuration))->getOddsByEventParticipantId((int) $object->p_id),
                 [],
                 $event
             );
@@ -82,8 +84,6 @@ class ParticipantProvider extends AbstractProvider
             ->addSelect('i.value as i_value', 'i.contenttype as i_contenttype')
         ;
 
-        $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
-
         $qb
             ->andWhere($qb->expr()->eq('i.object', '"participant"'))
             ->andWhere($qb->expr()->eq('i.type', '"logo"'))
@@ -92,6 +92,7 @@ class ParticipantProvider extends AbstractProvider
             ->addOrderBy('ep.number', 'ASC')
         ;
 
+        $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
         return $qb;
     }
 }

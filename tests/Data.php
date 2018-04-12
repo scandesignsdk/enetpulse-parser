@@ -1,6 +1,8 @@
 <?php
 
-namespace SDM\Enetpulse\Utils;
+declare(strict_types=1);
+
+namespace SDM\Enetpulse\Tests;
 
 class Data extends \stdClass
 {
