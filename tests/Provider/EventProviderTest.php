@@ -68,6 +68,7 @@ class EventProviderTest extends AbstractProviderTest
         $this->assertSame('finished', $event->getStatus());
 
         // Participants
+        $this->assertNotSame($event->getParticipants()[0]->getImage(), $event->getParticipants()[1]->getImage());
         $this->assertCount(2, $event->getParticipants(), 'participiants');
         $p = $event->getParticipants()[0];
         $this->assertSame(8302, $p->getId());
