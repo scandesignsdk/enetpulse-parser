@@ -68,7 +68,7 @@ class EventProviderTest extends AbstractProviderTest
         $this->assertSame('finished', $event->getStatus());
 
         // Participants
-        $this->assertCount(2, $event->getParticipants());
+        $this->assertCount(2, $event->getParticipants(), 'participiants');
         $p = $event->getParticipants()[0];
         $this->assertSame(8302, $p->getId());
         $this->assertSame('Sevilla', $p->getName());
@@ -82,37 +82,87 @@ class EventProviderTest extends AbstractProviderTest
         $this->assertSame('2018-02-22 07:35:14', $p->getFirstResult()->getUpdated()->format('Y-m-d H:i:s'));
         $this->assertInstanceOf(Event::class, $p->getEvent());
         // Results
-        $this->assertCount(4, $p->getResults());
+        $this->assertCount(4, $p->getResults(), 'results');
         $r = $p->getResults()[1];
         $this->assertInstanceOf(Result::class, $r);
         $this->assertSame('0', $r->getResult());
         $this->assertSame('halftime', $r->getResultCode());
         $this->assertSame('2018-02-22 06:31:50', $r->getUpdated()->format('Y-m-d H:i:s'));
 
+//        // Odds
+//        $this->assertCount(2, $p->getOdds(), 'odds');
+//        $o = $p->getOdds()[0];
+//        $this->assertInstanceOf(Odds::class, $o);
+//        $this->assertSame(394099719, $o->getId());
+//        $this->assertSame('ord', $o->getScope());
+//        $this->assertSame('win', $o->getSubtype());
+//        // Offers
+//        $this->assertCount(89, $o->getOffers(), 'offers');
+//        $offer = $o->getOffers()[0];
+//        $this->assertInstanceOf(Odds\Offer::class, $offer);
+//        $this->assertSame(3141026432, $offer->getId());
+//        $this->assertSame(2.71, $offer->getOdds());
+//        $this->assertSame(2.77, $offer->getOldOdds());
+//        $this->assertSame('2196&periodnumber=0', $offer->getCouponkey());
+//        $this->assertNull($offer->getCurrency());
+//        $this->assertSame(0, $offer->getVolume());
+//        // Odds provider
+//        $this->assertInstanceOf(Odds\Provider::class, $offer->getProvider());
+//        $this->assertSame(7, $offer->getProvider()->getId());
+//        $this->assertSame('Pinnacle Sports', $offer->getProvider()->getName());
+//        $this->assertSame('Unknown', $offer->getProvider()->getCountry());
+//        $this->assertSame('http://www.pinnaclesports.com/', $offer->getProvider()->getUrl());
+//        $this->assertTrue($offer->getProvider()->isBookmaker());
+    }
+
+    /**
+     * @group mysql
+     * @group event
+     * @requires extension pdo_mysql
+     */
+    public function testEventOdds(): void
+    {
+        /** @var Event $event */
+        $event = $this->getProvider(null)->getEvent(2680951);
+        $this->assertCount(2, $event->getOdds());
+
+        $home = $event->getOrd1x2HomeTeamOdds();
+        $draw = $event->getOrd1x2DrawOdds();
+        $away = $event->getOrd1x2AwayTeamOdds();
+
+        $this->assertCount(1, $home);
+        $this->assertCount(1, $draw);
+        $this->assertCount(0, $away);
+
         // Odds
-        $this->assertCount(2, $p->getOdds());
-        $o = $p->getOdds()[0];
+        $this->assertCount(1, $draw, 'odds');
+        $o = $draw[0];
         $this->assertInstanceOf(Odds::class, $o);
-        $this->assertSame(394099719, $o->getId());
+        $this->assertSame(399663977, $o->getId());
         $this->assertSame('ord', $o->getScope());
-        $this->assertSame('win', $o->getSubtype());
+        $this->assertSame('draw', $o->getSubtype());
+        $this->assertSame(9773, $o->getIparam1());
+        $this->assertSame(0, $o->getIparam2());
+        $this->assertSame(0.0, $o->getDparam1());
+        $this->assertSame(0.0, $o->getDparam2());
+        $this->assertSame('', $o->getSparam());
         // Offers
-        $this->assertCount(89, $o->getOffers());
+        $this->assertCount(6, $o->getOffers(), 'offers');
         $offer = $o->getOffers()[0];
         $this->assertInstanceOf(Odds\Offer::class, $offer);
-        $this->assertSame(3141026432, $offer->getId());
-        $this->assertSame(2.71, $offer->getOdds());
-        $this->assertSame(2.77, $offer->getOldOdds());
-        $this->assertSame('2196&periodnumber=0', $offer->getCouponkey());
-        $this->assertNull($offer->getCurrency());
-        $this->assertSame(0, $offer->getVolume());
+        $this->assertSame(3140726393, $offer->getId());
+        $this->assertSame(7.6, $offer->getOdds());
+        $this->assertSame(7.0, $offer->getOldOdds());
+        $this->assertSame('football/market/1.137918059', $offer->getCouponkey());
+        $this->assertSame('GBP', $offer->getCurrency());
+        $this->assertSame(10, $offer->getVolume());
         // Odds provider
         $this->assertInstanceOf(Odds\Provider::class, $offer->getProvider());
-        $this->assertSame(7, $offer->getProvider()->getId());
-        $this->assertSame('Pinnacle Sports', $offer->getProvider()->getName());
-        $this->assertSame('Unknown', $offer->getProvider()->getCountry());
-        $this->assertSame('http://www.pinnaclesports.com/', $offer->getProvider()->getUrl());
-        $this->assertTrue($offer->getProvider()->isBookmaker());
+        $this->assertSame(22, $offer->getProvider()->getId());
+        $this->assertSame('Betfair Exchange', $offer->getProvider()->getName());
+        $this->assertSame('Great Britain', $offer->getProvider()->getCountry());
+        $this->assertSame('https://www.betfair.com/exchange/', $offer->getProvider()->getUrl());
+        $this->assertFalse($offer->getProvider()->isBookmaker());
     }
 
     /**
@@ -238,32 +288,6 @@ class EventProviderTest extends AbstractProviderTest
         );
         $events = $this->getProvider(null)->getFinishedEvents(100, [], [], $betweenDate);
         $this->assertCount(0, $events);
-    }
-
-    /**
-     * @group mysql
-     * @group event
-     * @requires extension pdo_mysql
-     */
-    public function testGetDanishOddsProvidersEvent(): void
-    {
-        $configuration = $this->configuration->setOddsProviderCountryNames(['Denmark']);
-        $event = $this->getProvider(null, $configuration)->getEvent(2680944);
-        $o = $event->getParticipants()[0]->getOdds()[0];
-        $this->assertCount(1, $o->getOffers());
-    }
-
-    /**
-     * @group mysql
-     * @group event
-     * @requires extension pdo_mysql
-     */
-    public function testGetOddsProvidersEvent(): void
-    {
-        $configuration = $this->configuration->setOddsProviders([7]);
-        $event = $this->getProvider(null, $configuration)->getEvent(2680944);
-        $o = $event->getParticipants()[0]->getOdds()[0];
-        $this->assertCount(1, $o->getOffers());
     }
 
     /**

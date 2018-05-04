@@ -186,6 +186,7 @@ class EventProvider extends AbstractProvider
             $object->e_status_type
         );
         $event->setParticipants((new ParticipantProvider($this->configuration))->getParticipantsFromEvent($event));
+        $event->setOdds((new EventOddsProvider($this->configuration))->getOddsByEvent($event));
 
         return $event;
     }

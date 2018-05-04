@@ -40,14 +40,20 @@ class Event
     private $participants;
 
     /**
-     * @param int             $id
-     * @param string          $name
-     * @param TournamentStage $stage
-     * @param \DateTime       $startDate
-     * @param string          $status
-     * @param Participant[]   $participants
+     * @var array|Odds[]
      */
-    public function __construct(int $id, string $name, TournamentStage $stage, \DateTime $startDate, string $status, array $participants = [])
+    private $odds;
+
+    /**
+     * @param int $id
+     * @param string $name
+     * @param TournamentStage $stage
+     * @param \DateTime $startDate
+     * @param string $status
+     * @param Participant[] $participants
+     * @param array $odds
+     */
+    public function __construct(int $id, string $name, TournamentStage $stage, \DateTime $startDate, string $status, array $participants = [], array $odds = [])
     {
         $this->id = $id;
         $this->name = $name;
@@ -55,6 +61,7 @@ class Event
         $this->startDate = $startDate;
         $this->status = $status;
         $this->participants = $participants;
+        $this->odds = $odds;
     }
 
     public function getId(): int
@@ -100,5 +107,74 @@ class Event
         $this->participants = $participants;
 
         return $this;
+    }
+
+    /**
+     * @return array|Odds[]
+     */
+    public function getOdds(): array
+    {
+        return $this->odds;
+    }
+
+    /**
+     * @param array|Odds[] $odds
+     *
+     * @return self
+     */
+    public function setOdds(array $odds): self
+    {
+        $this->odds = $odds;
+
+        return $this;
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrd1x2HomeTeamOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[0]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === 'ord'
+            ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrd1x2DrawOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'draw'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === 'ord'
+            ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrd1x2AwayTeamOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[1]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === 'ord'
+            ;
+        });
+        return array_values($filtered);
     }
 }

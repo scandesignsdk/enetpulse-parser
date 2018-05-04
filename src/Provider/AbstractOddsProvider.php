@@ -1,35 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace SDM\Enetpulse\Provider;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use SDM\Enetpulse\Model\Odds;
 use SDM\Enetpulse\Utils\Utils;
 
-class OddsProvider extends AbstractProvider
+abstract class AbstractOddsProvider extends AbstractProvider
 {
     private static $odds = [];
-
-    /**
-     * @param int $participantId
-     *
-     * @return Odds[]
-     */
-    public function getOddsByEventParticipantId(int $participantId): array
-    {
-        $qb = $this->queryBuilder($participantId);
-
-        return $this->build($qb);
-    }
 
     /**
      * @param QueryBuilder $qb
      *
      * @return Odds[]
      */
-    private function build(QueryBuilder $qb): array
+    protected function build(QueryBuilder $qb): array
     {
         foreach ($this->fetchObjects($qb) as $item) {
             $this->createObject($item);
@@ -44,31 +30,37 @@ class OddsProvider extends AbstractProvider
     /**
      * @param \stdClass $object
      */
-    private function createObject(\stdClass $object): void
+    protected function createObject(\stdClass $object): void
     {
-        $id = $object->o_scope . $object->o_subtype;
+        $id = $object->o_type . $object->o_scope . $object->o_subtype . $object->o_dparam1 . $object->o_dparam2 . $object->o_sparam;
         if (isset(self::$odds[$id])) {
             $item = self::$odds[$id];
         } else {
             $item = new Odds(
-                (int) $object->o_id,
+                (int)$object->o_id,
+                $object->o_type,
                 $object->o_scope,
-                $object->o_subtype
+                $object->o_subtype,
+                (int)$object->o_dparam1,
+                (int)$object->o_dparam2,
+                $object->o_sparam,
+                $object->o_iparam1,
+                $object->o_iparam2
             );
         }
 
         $item->addOffer(new Odds\Offer(
-            (int) $object->b_id,
+            (int)$object->b_id,
             new Odds\Provider(
-                (int) $object->op_id,
+                (int)$object->op_id,
                 $object->op_name,
                 $object->op_url,
                 $object->country_name,
                 Utils::createBool($object->op_bookmaker)
             ),
-            (float) $object->b_odds,
-            (float) $object->b_odds_old,
-            (int) $object->b_volume,
+            (float)$object->b_odds,
+            (float)$object->b_odds_old,
+            (int)$object->b_volume,
             $object->b_currency,
             $object->b_couponkey
         ));
@@ -76,13 +68,23 @@ class OddsProvider extends AbstractProvider
         self::$odds[$id] = $item;
     }
 
-    protected function queryBuilder(int $participantId): QueryBuilder
+    protected function makeQueryBuilder(): QueryBuilder
     {
         $qb = $this->getBuilder();
         $qb
             // Outcome
             ->from('outcome', 'o')
-            ->addSelect('o.id as o_id', 'o.scope as o_scope', 'o.subtype as o_subtype')
+            ->addSelect(
+                'o.id as o_id',
+                'o.type as o_type',
+                'o.scope as o_scope',
+                'o.subtype as o_subtype',
+                'o.dparam as o_dparam1',
+                'o.dparam2 as o_dparam2',
+                'o.sparam as o_sparam',
+                'o.iparam as o_iparam1',
+                'o.iparam2 as o_iparam2'
+            )
             // Bettingoffer
             ->innerJoin('o', 'bettingoffer', 'b', 'b.outcomeFK = o.id')
             ->addSelect('b.id as b_id', 'b.odds as b_odds', 'b.odds_old as b_odds_old', 'b.volume as b_volume', 'b.currency as b_currency', 'b.couponKey as b_couponkey')
@@ -110,9 +112,6 @@ class OddsProvider extends AbstractProvider
         );
         $qb->setParameter(':op_active', 'yes');
         $qb->setParameter(':b_active', 'yes');
-
-        $qb->andWhere($qb->expr()->eq('o.iparam', ':participantId'));
-        $qb->setParameter(':participantId', $participantId);
 
         $this->removeDeleted($qb, ['o', 'b', 'op', 'c']);
         return $qb;

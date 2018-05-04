@@ -31,7 +31,7 @@ class Participant
     private $country;
 
     /**
-     * @var Odds[]
+     * @var Odds[]|null
      */
     private $odds;
 
@@ -44,6 +44,7 @@ class Participant
      * @var Event
      */
     private $event;
+
     /**
      * @var string
      */
@@ -55,11 +56,11 @@ class Participant
      * @param string   $type
      * @param string   $country
      * @param string   $image
-     * @param Odds[]   $odds
+     * @param Odds[]|null   $odds
      * @param Result[] $results
      * @param Event    $event
      */
-    public function __construct(int $id, string $name, string $type, string $country, string $image, array $odds, array $results, Event $event)
+    public function __construct(int $id, string $name, string $type, string $country, string $image, array $odds = null, array $results, Event $event)
     {
         $this->id = $id;
         $this->name = $name;
@@ -97,9 +98,9 @@ class Participant
     }
 
     /**
-     * @return Odds[]
+     * @return Odds[]|null
      */
-    public function getOdds(): array
+    public function getOdds(): ?array
     {
         return $this->odds;
     }

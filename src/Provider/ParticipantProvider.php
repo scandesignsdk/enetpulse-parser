@@ -53,7 +53,7 @@ class ParticipantProvider extends AbstractProvider
                 $object->p_type,
                 $object->country_name,
                 sprintf('data:%s;base64,%s', $object->i_contenttype, $object->i_value),
-                (new OddsProvider($this->configuration))->getOddsByEventParticipantId((int) $object->p_id),
+                null, //(new ParticipantOddsProvider($this->configuration))->getOddsByEventParticipantId((int) $object->p_id),
                 [],
                 $event
             );

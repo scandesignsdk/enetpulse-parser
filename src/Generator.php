@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SDM\Enetpulse;
 
 use SDM\Enetpulse\Provider\EventProvider;
-use SDM\Enetpulse\Provider\OddsProvider;
+use SDM\Enetpulse\Provider\ParticipantOddsProvider;
 use SDM\Enetpulse\Provider\ParticipantProvider;
 use SDM\Enetpulse\Provider\SportProvider;
 use SDM\Enetpulse\Provider\TournamentProvider;
@@ -32,9 +32,9 @@ class Generator
         return new ParticipantProvider($this->configuration);
     }
 
-    public function getOddsProvider(): OddsProvider
+    public function getOddsProvider(): ParticipantOddsProvider
     {
-        return new OddsProvider($this->configuration);
+        return new ParticipantOddsProvider($this->configuration);
     }
 
     public function getTournamentProvider(): TournamentProvider

@@ -30,6 +30,11 @@ class Tournament
     private $template;
 
     /**
+     * @var array|Odds[]|null
+     */
+    private $odds;
+
+    /**
      * @param int                    $id
      * @param string                 $name
      * @param TournamentTemplate     $template
