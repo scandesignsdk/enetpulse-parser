@@ -4,7 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Generator;
 
-$dsn = 'mysql://root:nah0cew0moT9shaxushohx2eel0Ugeey@mysql4.scandesigns.dk/oddsforum_dk_db';
+$dsn = include __DIR__ . '/dsn.php';
 
 $config = new Configuration($dsn);
 $generator = new Generator($config);
