@@ -130,6 +130,8 @@ class Event
     }
 
     /**
+     * 1x2 - 3Way (ordinare time) - Home win (1)
+     *
      * @return Odds[]
      */
     public function getOrd1x2HomeTeamOdds(): array
@@ -141,12 +143,33 @@ class Event
                 $odds->getSubtype() === 'win'
                 &&
                 $odds->getType() === '1x2' && $odds->getScope() === 'ord'
-            ;
+                ;
         });
         return array_values($filtered);
     }
 
     /**
+     * 1x2 - 3Way (1. half) - Home win (1)
+     *
+     * @return Odds[]
+     */
+    public function get1H1x2HomeTeamOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[0]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * 1x2 - 3Way (ordinare time) - Draw (x)
+     *
      * @return Odds[]
      */
     public function getOrd1x2DrawOdds(): array
@@ -162,6 +185,25 @@ class Event
     }
 
     /**
+     * 1x2 - 3Way (1. half) - Draw (x)
+     *
+     * @return Odds[]
+     */
+    public function get1H1x2DrawOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'draw'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * 1x2 - 3Way (ordinare time) - Away win (2)
+     *
      * @return Odds[]
      */
     public function getOrd1x2AwayTeamOdds(): array
@@ -174,6 +216,131 @@ class Event
                 &&
                 $odds->getType() === '1x2' && $odds->getScope() === 'ord'
             ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * 1x2 - 3Way (1. half) - Away win (2)
+     *
+     * @return Odds[]
+     */
+    public function get1H1x2AwayTeamOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[1]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Odd/Even goals - (ordinare time) - Even goals
+     *
+     * @return Odds[]
+     */
+    public function getOrdEvenGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'even'
+                &&
+                $odds->getType() === 'oe' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Odd/Even goals - (ordinare time) - Odd goals
+     *
+     * @return Odds[]
+     */
+    public function getOrdOddGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'odd'
+                &&
+                $odds->getType() === 'oe' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Over/Under - (ordinare time) - Over
+     * (the number is the dparam1 in the odds object)
+     *
+     * @return Odds[]
+     */
+    public function getOrdOverGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'over'
+                &&
+                $odds->getType() === 'ou' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Over/Under - (ordinare time) - Under
+     * (the number is the dparam1 in the odds object)
+     *
+     * @return Odds[]
+     */
+    public function getOrdUnderGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'under'
+                &&
+                $odds->getType() === 'ou' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Over/Under - (1. half) - Over
+     * (the number is the dparam1 in the odds object)
+     *
+     * @return Odds[]
+     */
+    public function get1HOverGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'over'
+                &&
+                $odds->getType() === 'ou' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Over/Under - (1. half) - Under
+     * (the number is the dparam1 in the odds object)
+     *
+     * @return Odds[]
+     */
+    public function get1HUnderGoals(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'under'
+                &&
+                $odds->getType() === 'ou' && $odds->getScope() === '1h'
+                ;
         });
         return array_values($filtered);
     }

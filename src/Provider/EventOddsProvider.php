@@ -31,15 +31,16 @@ class EventOddsProvider extends AbstractOddsProvider
     protected function queryBuilder(int $eventId): QueryBuilder
     {
         $qb = $this->makeQueryBuilder();
-
-        $qb->andWhere($qb->expr()->eq('o.object', ':object'));
-        $qb->andWhere($qb->expr()->eq('o.objectFK', ':eventId'));
-        $qb->andWhere($qb->expr()->eq('o.type', ':otype'));
-        $qb->andWhere($qb->expr()->eq('o.scope', ':oscope'));
-        $qb->setParameter(':object', 'event');
+        $qb->andWhere(
+            $qb->expr()->eq('o.objectFK', ':eventId'),
+            $qb->expr()->eq('o.object', ':object')
+        );
         $qb->setParameter(':eventId', $eventId);
-        $qb->setParameter(':otype', '1x2');
-        $qb->setParameter(':oscope', 'ord');
+        $qb->setParameter(':object', 'event');
+
+        $qb->andWhere(
+            $qb->expr()->in('o.type', ['"1x2"', '"oe"', '"ou"'])
+        );
 
         return $qb;
     }

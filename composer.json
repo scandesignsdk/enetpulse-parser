@@ -16,7 +16,8 @@
     },
     "require": {
         "php": "^7.2",
-        "doctrine/dbal": "^2.7"
+        "doctrine/dbal": "^2.7",
+        "symfony/console": "^4.0"
     },
     "autoload-dev": {
         "psr-4": {

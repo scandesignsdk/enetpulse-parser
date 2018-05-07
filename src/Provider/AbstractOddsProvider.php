@@ -41,8 +41,8 @@ abstract class AbstractOddsProvider extends AbstractProvider
                 $object->o_type,
                 $object->o_scope,
                 $object->o_subtype,
-                (int)$object->o_dparam1,
-                (int)$object->o_dparam2,
+                (float)$object->o_dparam1,
+                (float)$object->o_dparam2,
                 $object->o_sparam,
                 $object->o_iparam1,
                 $object->o_iparam2
