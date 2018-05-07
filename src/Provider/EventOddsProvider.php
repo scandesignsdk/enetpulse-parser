@@ -39,7 +39,7 @@ class EventOddsProvider extends AbstractOddsProvider
         $qb->setParameter(':object', 'event');
 
         $qb->andWhere(
-            $qb->expr()->in('o.type', ['"1x2"', '"oe"', '"ou"'])
+            $qb->expr()->in('o.type', ['"1x2"', '"oe"', '"ou"', '"ah"', '"1x2_hc"', '"dc"', '"ht_ft"', '"bts"'])
         );
 
         return $qb;

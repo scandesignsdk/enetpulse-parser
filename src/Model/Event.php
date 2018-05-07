@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SDM\Enetpulse\Model;
 
 use SDM\Enetpulse\Model\Event\Participant;
+use SDM\Enetpulse\Model\Odds\HalftimeFullTime;
+use SDM\Enetpulse\Model\Odds\Handicap;
 use SDM\Enetpulse\Model\Tournament\TournamentStage;
 
 class Event
@@ -340,6 +342,189 @@ class Event
                 $odds->getSubtype() === 'under'
                 &&
                 $odds->getType() === 'ou' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * Asian Handicap (ordinar time)
+     *
+     * @return Handicap[]
+     */
+    protected function getOrdAH(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === 'ah' && $odds->getScope() === 'ord'
+                ;
+        });
+
+        $handicaps = [];
+        foreach ($filtered as $odds) {
+            foreach ($this->getParticipants() as $participant) {
+                if ($participant->getId() === $odds->getIparam1()) {
+                    $handicaps[] = new Handicap($this, $participant, $odds->getDparam1(), $odds->getOffers());
+                    continue;
+                }
+            }
+        }
+        return $handicaps;
+    }
+
+    /**
+     * @return Handicap[]
+     */
+    public function getOrd1x2HomeTeamOddsHandicap(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[0]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2_hc' && $odds->getScope() === 'ord'
+                ;
+        });
+
+        $handicaps = [];
+        foreach ($filtered as $filter) {
+            $handicaps[] = new Handicap($this, $this->getParticipants()[0], $filter->getDparam1(), $filter->getOffers());
+        }
+        return $handicaps;
+    }
+
+    /**
+     * @return Handicap[]
+     */
+    public function getOrd1x2DrawHandicap(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'draw'
+                &&
+                $odds->getType() === '1x2_hc' && $odds->getScope() === 'ord'
+                ;
+        });
+
+        $handicaps = [];
+        foreach ($filtered as $filter) {
+            $team = $this->getParticipants()[0]->getId() === $filter->getIparam1() ? $this->getParticipants()[0] : $this->getParticipants()[1];
+            $handicaps[] = new Handicap($this, $team, $filter->getDparam1(), $filter->getOffers());
+        }
+        return $handicaps;
+    }
+
+    /**
+     * @return Handicap[]
+     */
+    public function getOrd1x2AwayTeamOddsHandicap(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[1]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2_hc' && $odds->getScope() === 'ord'
+                ;
+        });
+
+        $handicaps = [];
+        foreach ($filtered as $filter) {
+            $handicaps[] = new Handicap($this, $this->getParticipants()[0], $filter->getDparam1(), $filter->getOffers());
+        }
+        return $handicaps;
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrdHomeDC(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[0]->getId()
+                &&
+                $odds->getSubtype() === 'win_draw'
+                &&
+                $odds->getType() === 'dc' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrdAwayDC(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[1]->getId()
+                &&
+                $odds->getSubtype() === 'win_draw'
+                &&
+                $odds->getType() === 'dc' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return HalftimeFullTime[]
+     */
+    public function getOrdHalftimeFulltime(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getType() === 'ht_ft' && $odds->getScope() === 'ord'
+            ;
+        });
+
+        $getTeam = function (int $id) {
+            foreach ($this->getParticipants() as $participant) {
+                if ($participant->getId() === $id) {
+                    return $participant;
+                }
+            }
+            return null;
+        };
+
+        $hftf = [];
+        foreach ($filtered as $filter) {
+            $hftf[] = new HalftimeFullTime($getTeam($filter->getIparam1()), $getTeam($filter->getIparam2()), $filter->getOffers());
+        }
+        return $hftf;
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrdBothTeamScoresYes(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'yes'
+                &&
+                $odds->getType() === 'bts' && $odds->getScope() === 'ord'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return Odds[]
+     */
+    public function getOrdBothTeamScoresNo(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'no'
+                &&
+                $odds->getType() === 'bts' && $odds->getScope() === 'ord'
                 ;
         });
         return array_values($filtered);

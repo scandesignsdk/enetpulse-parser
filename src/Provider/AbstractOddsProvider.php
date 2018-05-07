@@ -32,7 +32,7 @@ abstract class AbstractOddsProvider extends AbstractProvider
      */
     protected function createObject(\stdClass $object): void
     {
-        $id = $object->o_type . $object->o_scope . $object->o_subtype . $object->o_dparam1 . $object->o_dparam2 . $object->o_sparam;
+        $id = $object->o_type . $object->o_scope . $object->o_subtype . $object->o_dparam1 . $object->o_dparam2 . $object->o_sparam . $object->o_iparam1 . $object->o_iparam2;
         if (isset(self::$odds[$id])) {
             $item = self::$odds[$id];
         } else {
