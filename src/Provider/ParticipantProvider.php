@@ -95,5 +95,4 @@ class ParticipantProvider extends AbstractProvider
         $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
         return $qb;
     }
-
 }

@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Standing;
 
 class Stand
 {
-
     /**
      * @var Participant
      */
@@ -30,5 +29,4 @@ class Stand
     {
         return $this->data;
     }
-
 }

@@ -7,19 +7,18 @@ use SDM\Enetpulse\Model\Tournament\TournamentStage;
 
 class Standing
 {
-
     /**
-     * @var Stand[]
+     * @var Stand[]|null
      */
     private $standings;
 
     /**
-     * @var Stand[]
+     * @var Stand[]|null
      */
     private $homeStandings;
 
     /**
-     * @var Stand[]
+     * @var Stand[]|null
      */
     private $awayStandings;
 
@@ -63,7 +62,7 @@ class Standing
     public function getTotalStandings(): array
     {
         $standings = $this->standings;
-        usort($standings, function(Stand $a, Stand $b) {
+        usort($standings, function (Stand $a, Stand $b) {
             return $a->getData()->getRank() <=> $b->getData()->getRank();
         });
         return $standings;
@@ -75,7 +74,7 @@ class Standing
     public function getHomeStandings(): array
     {
         $standings = $this->homeStandings;
-        usort($standings, function(Stand $a, Stand $b) {
+        usort($standings, function (Stand $a, Stand $b) {
             return $a->getData()->getRank() <=> $b->getData()->getRank();
         });
         return $standings;
@@ -87,7 +86,7 @@ class Standing
     public function getAwayStandings(): array
     {
         $standings = $this->awayStandings;
-        usort($standings, function(Stand $a, Stand $b) {
+        usort($standings, function (Stand $a, Stand $b) {
             return $a->getData()->getRank() <=> $b->getData()->getRank();
         });
         return $standings;
@@ -100,5 +99,4 @@ class Standing
     {
         return $this->stage;
     }
-
 }

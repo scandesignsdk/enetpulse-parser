@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Standing;
 
 class StandData
 {
-
     /**
      * @var int
      */
@@ -120,5 +119,4 @@ class StandData
     {
         return $this->points;
     }
-
 }

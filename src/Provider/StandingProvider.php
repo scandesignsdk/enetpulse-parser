@@ -7,17 +7,15 @@ use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Model\Standing;
 use SDM\Enetpulse\Model\Tournament;
 use SDM\Enetpulse\Model\Tournament\TournamentStage;
-use SDM\Enetpulse\Utils\Utils;
 
 class StandingProvider extends AbstractProvider
 {
-
     /**
      * @param TournamentStage $stage
      *
      * @return Standing
      */
-    public function getStandingFromTournamentStage(TournamentStage $stage): Standing
+    public function getStandingFromTournamentStage(TournamentStage $stage): ?Standing
     {
         return $this->getStandingFromTournamentStageId($stage->getId());
     }
@@ -27,7 +25,7 @@ class StandingProvider extends AbstractProvider
      *
      * @return Standing
      */
-    public function getStandingFromTournamentStageId(int $stage): Standing
+    public function getStandingFromTournamentStageId(int $stage): ?Standing
     {
         return $this->build($this->queryBuilder($stage));
     }
@@ -37,69 +35,74 @@ class StandingProvider extends AbstractProvider
      *
      * @return Standing
      */
-    private function build(QueryBuilder $qb): Standing
+    private function build(QueryBuilder $qb): ?Standing
     {
         return $this->createObject($this->fetchSingle($qb));
     }
 
-    protected function createObject(\stdClass $data): Standing
+    protected function createObject(?\stdClass $data): ?Standing
     {
-        $standing = new Standing(
-            new TournamentStage(
-                $data->ts_id,
-                $data->ts_name,
-                $data->country_name,
-                $this->createDate($data->ts_startdate),
-                $this->createDate($data->ts_enddate),
-                new Tournament(
-                    $data->t_id,
-                    $data->t_name,
-                    new Tournament\TournamentTemplate(
-                        $data->tt_id,
-                        $data->tt_name,
-                        new Sport(
-                            $data->sport_id,
-                            $data->sport_name
-                        ), $data->tt_gender
+        if ($data) {
+            $standing = new Standing(
+                new TournamentStage(
+                    $data->ts_id,
+                    $data->ts_name,
+                    $data->country_name,
+                    $this->createDate($data->ts_startdate),
+                    $this->createDate($data->ts_enddate),
+                    new Tournament(
+                        $data->t_id,
+                        $data->t_name,
+                        new Tournament\TournamentTemplate(
+                            $data->tt_id,
+                            $data->tt_name,
+                            new Sport(
+                                $data->sport_id,
+                                $data->sport_name
+                            ),
+                            $data->tt_gender
+                        )
                     )
                 )
-            )
-        );
-
-        $standingBuilder = $this->queryBuilderStandingData($data->ts_id);
-        foreach ($this->fetchObjects($standingBuilder) as $object) {
-            $participant = new Standing\Participant(
-                $object->p_id,
-                $object->p_name,
-                $object->p_type,
-                $object->country_name,
-                $this->createImage($object->i_contenttype, $object->i_value)
             );
 
-            $standing->addStanding(
-                new Standing\Stand(
-                    $participant,
-                    $this->queryBuilderStandingDataValues($object->standing_p_id, 'total')
-                )
-            );
-            $standing->addHomeStanding(
-                new Standing\Stand(
-                    $participant,
-                    $this->queryBuilderStandingDataValues($object->standing_p_id, 'home')
-                )
-            );
-            $standing->addAwayStanding(
-                new Standing\Stand(
-                    $participant,
-                    $this->queryBuilderStandingDataValues($object->standing_p_id, 'away')
-                )
-            );
+            $standingBuilder = $this->queryBuilderStandingData($data->ts_id);
+            foreach ($this->fetchObjects($standingBuilder) as $object) {
+                $participant = new Standing\Participant(
+                    $object->p_id,
+                    $object->p_name,
+                    $object->p_type,
+                    $object->country_name,
+                    $this->createImage($object->i_contenttype, $object->i_value)
+                );
+
+                $standing->addStanding(
+                    new Standing\Stand(
+                        $participant,
+                        $this->queryBuilderStandingDataValues($object->standing_p_id, 'total')
+                    )
+                );
+                $standing->addHomeStanding(
+                    new Standing\Stand(
+                        $participant,
+                        $this->queryBuilderStandingDataValues($object->standing_p_id, 'home')
+                    )
+                );
+                $standing->addAwayStanding(
+                    new Standing\Stand(
+                        $participant,
+                        $this->queryBuilderStandingDataValues($object->standing_p_id, 'away')
+                    )
+                );
+            }
+
+            return $standing;
         }
 
-        return $standing;
+        return null;
     }
 
-    protected function queryBuilder($stageId) : QueryBuilder
+    protected function queryBuilder($stageId): QueryBuilder
     {
         $qb = $this->getBuilder();
 
@@ -212,5 +215,4 @@ class StandingProvider extends AbstractProvider
             $points
         );
     }
-
 }
