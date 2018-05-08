@@ -129,6 +129,71 @@ class EventProvider extends AbstractProvider
         return $this->createEvents($qb);
     }
 
+    /**
+     * @param int|Event\Participant $participant
+     * @param int $limit
+     *
+     * @return Event[]
+     */
+    public function getUpcomingMatchesParticipant($participant, $limit = 10): array
+    {
+        $qb = $this->queryBuilder($limit);
+        $qb->innerJoin('e', 'event_participants', 'ep', 'e.id = ep.eventFK');
+        $qb->andWhere($qb->expr()->eq('ep.participantFK', ':participant'));
+        $qb->setParameter(':participant', $participant instanceof Event\Participant ? $participant->getId() : $participant);
+
+        $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
+        $qb->setParameter(':status', 'notstarted');
+        $qb->addOrderBy('e.startdate', 'ASC');
+        $qb->addOrderBy('e.id', 'DESC');
+
+        return $this->createEvents($qb);
+    }
+
+    /**
+     * @param int|Event\Participant $participant
+     * @param int $limit
+     *
+     * @return Event[]
+     */
+    public function getLatestMatchesParticipant($participant, $limit = 10): array
+    {
+        $qb = $this->queryBuilder($limit);
+        $qb->innerJoin('e', 'event_participants', 'ep', 'e.id = ep.eventFK');
+        $qb->andWhere($qb->expr()->eq('ep.participantFK', ':participant'));
+        $qb->setParameter(':participant', $participant instanceof Event\Participant ? $participant->getId() : $participant);
+
+        $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
+        $qb->setParameter(':status', 'finished');
+        $qb->addOrderBy('e.startdate', 'DESC');
+        $qb->addOrderBy('e.id', 'DESC');
+
+        return $this->createEvents($qb);
+    }
+
+    /**
+     * @param int[]|Event\Participant[] $participants
+     * @param int $limit
+     *
+     * @return Event[]
+     */
+    public function getLatestMatchesBetween(array $participants, $limit = 10): array
+    {
+        $qb = $this->queryBuilder($limit);
+        $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
+        $qb->setParameter(':status', 'finished');
+        $qb->addOrderBy('e.startdate', 'DESC');
+        $qb->addOrderBy('e.id', 'DESC');
+
+        foreach ($participants as $num => $participant) {
+            $qb->innerJoin('e', 'event_participants', 'ep_' . $num, 'e.id = ep_' . $num . '.eventFK');
+            $qb->andWhere($qb->expr()->eq('ep_' . $num . '.participantFK', ':participant_' . $num));
+            $qb->setParameter(':participant_' . $num, $participant instanceof Event\Participant ? $participant->getId() : $participant);
+        }
+
+        return $this->createEvents($qb);
+    }
+
     public function getEvent(int $eventId): ?Event
     {
         $qb = $this->queryBuilder(null);

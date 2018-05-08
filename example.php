@@ -3,12 +3,19 @@ require __DIR__ . '/vendor/autoload.php';
 
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Generator;
+use SDM\Enetpulse\Model\Event\Participant;
 
 $dsn = include __DIR__ . '/dsn.php';
 
 $config = new Configuration($dsn);
 $generator = new Generator($config);
 $event = $generator->getEventProvider()->getEvent(2680952);
+
+echo "----- EVENT -----\n";
+echo implode(' - ', array_map(function(Participant $part) { return $part->getName(); }, $event->getParticipants()));
+echo "\n";
+echo $event->getStartDate()->format('Y-m-d H:i');
+echo "\n=================================";
 
 // ordinare time - meaning in regular time
 // CS: Hvis en kamp ender med 15-15 (så stoppes ordinær tid her, selvom kampen fortsætter i overtid)
@@ -277,4 +284,34 @@ foreach ($multipleOdds as $singleOdds) {
     foreach ($singleOdds->getOffers() as $offer) {
         echo $offer->getProvider()->getName() . ' - ' . $offer->getOdds() . "\n";
     }
+}
+
+/**
+ * Upcoming matches for a participant (not started matches)
+ */
+echo "\n\nUpcoming matches for a participant (not started matches)\n-------------------\n\n";
+// Can be either a integer or a participant object
+$events = $generator->getEventProvider()->getUpcomingMatchesParticipant($event->getParticipants()[0], 5);
+foreach ($events as $upcomingEvent) {
+    echo $upcomingEvent->getStartDate()->format('Y-m-d H:i') . ' - ' . implode(' - ', array_map(function(Participant $participant) { return $participant->getName(); }, $upcomingEvent->getParticipants())) . "\n";
+}
+
+/**
+ * Latest matches for a participant (finished matches)
+ */
+echo "\n\nLatest matches for a participant (finished matches)\n-------------------\n\n";
+// Can be either a integer or a participant object
+$events = $generator->getEventProvider()->getLatestMatchesParticipant($event->getParticipants()[0], 5);
+foreach ($events as $latestEvent) {
+    echo $latestEvent->getStartDate()->format('Y-m-d H:i') . ' - ' . implode(' - ', array_map(function(Participant $participant) { return $participant->getName(); }, $latestEvent->getParticipants())) . "\n";
+}
+
+/**
+ * Latest matches between multiple participants (finished matches)
+ */
+echo "\n\nLatest matches between multiple participants (finished matches)\n-------------------\n\n";
+// Can be either a array of integers or an array of participant objects
+$events = $generator->getEventProvider()->getLatestMatchesBetween($event->getParticipants(), 5);
+foreach ($events as $latestBetween) {
+    echo $latestBetween->getStartDate()->format('Y-m-d H:i') . ' - ' . implode(' - ', array_map(function(Participant $participant) { return $participant->getName(); }, $latestBetween->getParticipants())) . "\n";
 }
