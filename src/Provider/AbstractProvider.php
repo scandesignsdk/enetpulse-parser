@@ -115,4 +115,9 @@ abstract class AbstractProvider implements ProviderInterface
             $queryBuilder->andWhere($queryBuilder->expr()->eq($table . '.del', '"no"'));
         }
     }
+
+    protected function createImage($imageType, $imageDataValue): string
+    {
+        return sprintf('data:%s;base64,%s', $imageType, $imageDataValue);
+    }
 }

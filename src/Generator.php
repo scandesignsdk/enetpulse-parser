@@ -8,6 +8,7 @@ use SDM\Enetpulse\Provider\EventProvider;
 use SDM\Enetpulse\Provider\ParticipantOddsProvider;
 use SDM\Enetpulse\Provider\ParticipantProvider;
 use SDM\Enetpulse\Provider\SportProvider;
+use SDM\Enetpulse\Provider\StandingProvider;
 use SDM\Enetpulse\Provider\TournamentProvider;
 
 class Generator
@@ -45,5 +46,10 @@ class Generator
     public function getSportProvider(): SportProvider
     {
         return new SportProvider($this->configuration);
+    }
+
+    public function getStandingProvider(): StandingProvider
+    {
+        return new StandingProvider($this->configuration);
     }
 }
