@@ -529,5 +529,4 @@ class Event
         });
         return array_values($filtered);
     }
-
 }
