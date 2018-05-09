@@ -4,7 +4,9 @@ require __DIR__ . '/vendor/autoload.php';
 use SDM\Enetpulse\Configuration;
 use SDM\Enetpulse\Generator;
 use SDM\Enetpulse\Model\Event\Participant;
+use SDM\Enetpulse\Model\Odds\Offer;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 $dsn = include __DIR__ . '/dsn.php';
@@ -238,20 +240,6 @@ foreach ($multipleOdds as $singleOdds) {
 }
 
 /**
- * AH (Asian Handicap)
- */
-
-// This will decrease or increase the "start" goals for both teams
-// This is a special one, because we need the score - so it will
-// CS: Forstil dig at Astralis - Faze og man så siger at Astralis starter med minus mål (fx -2.50) og kampen ender 16-14, så har Faze "vundet" dette bet fordi Astralis skal vinde kampen med mere end 2.50 mål
-// ABANDON FOR THE TIME BEING!!
-//$multipleHandicaps = $event->getOrdAH();
-//foreach ($multipleHandicaps as $handicap) {
-//    dump($handicap);
-//}
-
-
-/**
  * 1x2 with handicap
  */
 echo "\n\n1x2 with handicap (ordinar time)\n-------------------\n\n";
@@ -389,3 +377,34 @@ $events = $generator->getEventProvider()->getLatestMatchesBetween($event->getPar
 foreach ($events as $latestBetween) {
     echo $latestBetween->getStartDate()->format('Y-m-d H:i') . ' - ' . implode(' - ', array_map(function(Participant $participant) { return $participant->getName(); }, $latestBetween->getParticipants())) . "\n";
 }
+
+
+/**
+ * AH (Asian Handicap)
+ */
+
+// This will decrease or increase the "start" goals for both teams
+// This is a special one, because we need the score - so it will
+// Ja, jeg jeg kan ikke give nogle eksempler på hvad der menes med den, da jeg ikke har nogle anelse om hvad der er med den
+
+$output = new BufferedOutput();
+$table = new Table($output);
+
+$multipleHandicaps = $event->getOrdAH();
+
+$table->setHeaders(['Hometeam', 'Awayteam', 'Starting home score', 'Starting away score', 'odds']);
+foreach ($multipleHandicaps as $handicap) {
+    $table->addRow([
+        $event->getParticipants()[0]->getName(),
+        $event->getParticipants()[1]->getName(),
+        $event->getParticipants()[0]->getId() === $handicap->getParticipant()->getId() ? $handicap->getHandicap() : 0,
+        $event->getParticipants()[1]->getId() === $handicap->getParticipant()->getId() ? $handicap->getHandicap() : 0,
+        implode("\n", array_map(function(Offer $offer) {
+            return $offer->getProvider()->getName() . ' - ' . $offer->getOdds();
+        }, $handicap->getOffers()))
+    ]);
+    $table->addRow(new TableSeparator());
+}
+$table->render();
+
+echo $output->fetch();

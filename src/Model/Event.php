@@ -352,7 +352,7 @@ class Event
      *
      * @return Handicap[]
      */
-    protected function getOrdAH(): array
+    public function getOrdAH(): array
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
             return
@@ -529,4 +529,5 @@ class Event
         });
         return array_values($filtered);
     }
+
 }
