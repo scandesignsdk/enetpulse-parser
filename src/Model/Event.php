@@ -354,6 +354,12 @@ class Event
      */
     public function getOrdAH(): array
     {
+        $isFractionAllowed = function (float $number) {
+            $whole = floor($number);
+            $fraction = $number - $whole;
+            return $fraction === 0 || $fraction === .5;
+        };
+
         $filtered = array_filter($this->odds, function (Odds $odds) {
             return
                 $odds->getSubtype() === 'win'
@@ -364,13 +370,20 @@ class Event
 
         $handicaps = [];
         foreach ($filtered as $odds) {
-            foreach ($this->getParticipants() as $participant) {
-                if ($participant->getId() === $odds->getIparam1()) {
-                    $handicaps[] = new Handicap($this, $participant, $odds->getDparam1(), $odds->getOffers());
-                    continue;
+            if ($isFractionAllowed($odds->getDparam1())) {
+                foreach ($this->getParticipants() as $participant) {
+                    if ($participant->getId() === $odds->getIparam1()) {
+                        $handicaps[] = new Handicap($this, $participant, $odds->getDparam1(), $odds->getOffers());
+                        continue;
+                    }
                 }
             }
         }
+
+        usort($handicaps, function (Handicap $a, Handicap $b) {
+            return $a->getHandicap() <=> $b->getHandicap();
+        });
+
         return $handicaps;
     }
 
