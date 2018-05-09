@@ -324,11 +324,16 @@ echo "\n\nhf_tf (Halftime / Fulltime)\n-------------------\n\n";
 // Astralis - Faze 9-6 - men kampen ender 15-15 - så vil Astralis holdet være halvlegs holdet - men der vil være NULL i fuldtids holdet
 $multipleHFTF = $event->getOrdHalftimeFulltime();
 foreach ($multipleHFTF as $singleHFTF) {
-    $halftimeTeam = $singleHFTF->getHalftimeParticipant();
-    $fulltimeTeam = $singleHFTF->getFullTimeParticipant();
+    $halfTime = 'X';
+    $fullTime = 'X';
+    if (null !== $singleHFTF->getHalftimeParticipant()) {
+        $halfTime = $singleHFTF->getHalftimeParticipant()->getId() === $event->getParticipants()[0]->getId() ? 1 : 2;
+    }
+    if (null !== $singleHFTF->getFullTimeParticipant()) {
+        $fullTime = $singleHFTF->getFullTimeParticipant()->getId() === $event->getParticipants()[0]->getId() ? 1 : 2;
+    }
 
-    echo "\nHalvlegs vinder: " . ($halftimeTeam === null ? 'Uafgjort' : $halftimeTeam->getName()) . "\n";
-    echo 'Fuldtids vinder: ' . ($fulltimeTeam === null ? 'Uafgjort' : $fulltimeTeam->getName()) . "\n";
+    echo $halfTime . ' / ' . $fullTime . "\n";
     foreach ($singleHFTF->getOffers() as $offer) {
         echo $offer->getProvider()->getName() . ' - ' . $offer->getOdds() . "\n";
     }
