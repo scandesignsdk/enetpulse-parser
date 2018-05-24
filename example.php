@@ -13,74 +13,74 @@ $dsn = include __DIR__ . '/dsn.php';
 
 $config = new Configuration($dsn);
 $generator = new Generator($config);
+//
+///**
+// * Table standings
+// */
+//echo "\n\nTable standings\n-------------------\n\n";
+//
+//$output = new BufferedOutput();
+//// Total for all matches
+//$output->writeln('// Total for all matches');
+//$table = new Table($output);
+//$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
+//$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
+//foreach ($standing->getTotalStandings() as $stand) {
+//    $table->addRow([
+//        $stand->getParticipant()->getName(),
+//        $stand->getData()->getRank(),
+//        $stand->getData()->getPlayed(),
+//        $stand->getData()->getWins(),
+//        $stand->getData()->getDraws(),
+//        $stand->getData()->getDefeits(),
+//        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
+//        $stand->getData()->getPoints(),
+//    ]);
+//}
+//$table->render();
+//
+//// Total for home matches
+//$output->writeln('// Total for home matches');
+//$table = new Table($output);
+//$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
+//$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
+//foreach ($standing->getHomeStandings() as $stand) {
+//    $table->addRow([
+//        $stand->getParticipant()->getName(),
+//        $stand->getData()->getRank(),
+//        $stand->getData()->getPlayed(),
+//        $stand->getData()->getWins(),
+//        $stand->getData()->getDraws(),
+//        $stand->getData()->getDefeits(),
+//        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
+//        $stand->getData()->getPoints(),
+//    ]);
+//}
+//$table->render();
+//
+//// Total for away matches
+//$output->writeln('// Total for away matches');
+//$table = new Table($output);
+//$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
+//$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
+//foreach ($standing->getAwayStandings() as $stand) {
+//    $table->addRow([
+//        $stand->getParticipant()->getName(),
+//        $stand->getData()->getRank(),
+//        $stand->getData()->getPlayed(),
+//        $stand->getData()->getWins(),
+//        $stand->getData()->getDraws(),
+//        $stand->getData()->getDefeits(),
+//        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
+//        $stand->getData()->getPoints(),
+//    ]);
+//}
+//$table->render();
+//
+//echo $output->fetch();
 
-/**
- * Table standings
- */
-echo "\n\nTable standings\n-------------------\n\n";
 
-$output = new BufferedOutput();
-// Total for all matches
-$output->writeln('// Total for all matches');
-$table = new Table($output);
-$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
-$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
-foreach ($standing->getTotalStandings() as $stand) {
-    $table->addRow([
-        $stand->getParticipant()->getName(),
-        $stand->getData()->getRank(),
-        $stand->getData()->getPlayed(),
-        $stand->getData()->getWins(),
-        $stand->getData()->getDraws(),
-        $stand->getData()->getDefeits(),
-        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
-        $stand->getData()->getPoints(),
-    ]);
-}
-$table->render();
-
-// Total for home matches
-$output->writeln('// Total for home matches');
-$table = new Table($output);
-$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
-$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
-foreach ($standing->getHomeStandings() as $stand) {
-    $table->addRow([
-        $stand->getParticipant()->getName(),
-        $stand->getData()->getRank(),
-        $stand->getData()->getPlayed(),
-        $stand->getData()->getWins(),
-        $stand->getData()->getDraws(),
-        $stand->getData()->getDefeits(),
-        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
-        $stand->getData()->getPoints(),
-    ]);
-}
-$table->render();
-
-// Total for away matches
-$output->writeln('// Total for away matches');
-$table = new Table($output);
-$table->setHeaders(['Team', 'Rank', 'Matches', 'Won', 'Draws', 'Lost', 'Goals', 'Points']);
-$standing = $generator->getStandingProvider()->getStandingFromTournamentStageId(849851);
-foreach ($standing->getAwayStandings() as $stand) {
-    $table->addRow([
-        $stand->getParticipant()->getName(),
-        $stand->getData()->getRank(),
-        $stand->getData()->getPlayed(),
-        $stand->getData()->getWins(),
-        $stand->getData()->getDraws(),
-        $stand->getData()->getDefeits(),
-        $stand->getData()->getGoalsFor() . '-' . $stand->getData()->getGoalsAgainst(),
-        $stand->getData()->getPoints(),
-    ]);
-}
-$table->render();
-
-echo $output->fetch();
-
-
-$event = $generator->getEventProvider()->getEvent(2680952);
+$event = $generator->getEventProvider()->getEvent(2747589);
 
 echo "----- EVENT -----\n";
 echo implode(' - ', array_map(function(Participant $part) { return $part->getName(); }, $event->getParticipants()));

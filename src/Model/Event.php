@@ -7,6 +7,10 @@ namespace SDM\Enetpulse\Model;
 use SDM\Enetpulse\Model\Event\Participant;
 use SDM\Enetpulse\Model\Odds\HalftimeFullTime;
 use SDM\Enetpulse\Model\Odds\Handicap;
+use SDM\Enetpulse\Model\Odds\MatchWinnerHandicapOdds;
+use SDM\Enetpulse\Model\Odds\MatchWinnerOdds;
+use SDM\Enetpulse\Model\Odds\OverUnderGoalsOdds;
+use SDM\Enetpulse\Model\Odds\OverUnderOdds;
 use SDM\Enetpulse\Model\Tournament\TournamentStage;
 
 class Event
@@ -132,6 +136,50 @@ class Event
     }
 
     /**
+     * @return MatchWinnerOdds[]
+     */
+    public function getOrd1x2Odds(): array
+    {
+        $providers = [];
+
+        $doOdds = function(Odds $odds, $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                if (! isset($providers[$offer->getProvider()->getId()])) {
+                    $providers[$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($this->getOrd1x2HomeTeamOdds() as $odds) {
+            $doOdds($odds, 'home');
+        }
+
+        foreach ($this->getOrd1x2DrawOdds() as $odds) {
+            $doOdds($odds, 'draw');
+        }
+
+        foreach ($this->getOrd1x2AwayTeamOdds() as $odds) {
+            $doOdds($odds, 'away');
+        }
+
+        $odds = [];
+        foreach ($providers as $provider) {
+            $odds[] = new MatchWinnerOdds(
+                $provider['provider'],
+                $provider['home'],
+                $provider['draw'],
+                $provider['away']
+            );
+        }
+
+        return $odds;
+    }
+
+    /**
      * 1x2 - 3Way (ordinare time) - Home win (1)
      *
      * @return Odds[]
@@ -145,25 +193,6 @@ class Event
                 $odds->getSubtype() === 'win'
                 &&
                 $odds->getType() === '1x2' && $odds->getScope() === 'ord'
-                ;
-        });
-        return array_values($filtered);
-    }
-
-    /**
-     * 1x2 - 3Way (1. half) - Home win (1)
-     *
-     * @return Odds[]
-     */
-    public function get1H1x2HomeTeamOdds(): array
-    {
-        $filtered = array_filter($this->odds, function (Odds $odds) {
-            return
-                $odds->getIparam1() === $this->getParticipants()[0]->getId()
-                &&
-                $odds->getSubtype() === 'win'
-                &&
-                $odds->getType() === '1x2' && $odds->getScope() === '1h'
                 ;
         });
         return array_values($filtered);
@@ -187,23 +216,6 @@ class Event
     }
 
     /**
-     * 1x2 - 3Way (1. half) - Draw (x)
-     *
-     * @return Odds[]
-     */
-    public function get1H1x2DrawOdds(): array
-    {
-        $filtered = array_filter($this->odds, function (Odds $odds) {
-            return
-                $odds->getSubtype() === 'draw'
-                &&
-                $odds->getType() === '1x2' && $odds->getScope() === '1h'
-                ;
-        });
-        return array_values($filtered);
-    }
-
-    /**
      * 1x2 - 3Way (ordinare time) - Away win (2)
      *
      * @return Odds[]
@@ -217,7 +229,87 @@ class Event
                 $odds->getSubtype() === 'win'
                 &&
                 $odds->getType() === '1x2' && $odds->getScope() === 'ord'
-            ;
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * @return MatchWinnerOdds[]
+     */
+    public function get1H1x2Odds(): array
+    {
+        $providers = [];
+
+        $doOdds = function(Odds $odds, $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                if (! isset($providers[$offer->getProvider()->getId()])) {
+                    $providers[$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($this->get1H1x2HomeTeamOdds() as $odds) {
+            $doOdds($odds, 'home');
+        }
+
+        foreach ($this->get1H1x2DrawOdds() as $odds) {
+            $doOdds($odds, 'draw');
+        }
+
+        foreach ($this->get1H1x2AwayTeamOdds() as $odds) {
+            $doOdds($odds, 'away');
+        }
+
+        $odds = [];
+        foreach ($providers as $provider) {
+            $odds[] = new MatchWinnerOdds(
+                $provider['provider'],
+                $provider['home'],
+                $provider['draw'],
+                $provider['away']
+            );
+        }
+
+        return $odds;
+    }
+
+    /**
+     * 1x2 - 3Way (1. half) - Home win (1)
+     *
+     * @return Odds[]
+     */
+    public function get1H1x2HomeTeamOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getIparam1() === $this->getParticipants()[0]->getId()
+                &&
+                $odds->getSubtype() === 'win'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === '1h'
+                ;
+        });
+        return array_values($filtered);
+    }
+
+    /**
+     * 1x2 - 3Way (1. half) - Draw (x)
+     *
+     * @return Odds[]
+     */
+    public function get1H1x2DrawOdds(): array
+    {
+        $filtered = array_filter($this->odds, function (Odds $odds) {
+            return
+                $odds->getSubtype() === 'draw'
+                &&
+                $odds->getType() === '1x2' && $odds->getScope() === '1h'
+                ;
         });
         return array_values($filtered);
     }
@@ -276,6 +368,128 @@ class Event
     }
 
     /**
+     * @param float $notGoals
+     *
+     * @return OverUnderGoalsOdds[]
+     */
+    public function getOrdOverUnderAll(float $notGoals = null): array
+    {
+        $providers = [];
+
+        $over = $this->getOrdOverGoals();
+        $under = $this->getOrdUnderGoals();
+        if ($notGoals) {
+            /** @var Odds[] $over */
+            $over = array_filter($over, function(Odds $odds) use ($notGoals) {
+                return $odds->getDparam1() !== $notGoals;
+            });
+
+            /** @var Odds[] $under */
+            $under = array_filter($under, function(Odds $odds) use ($notGoals) {
+                return $odds->getDparam1() !== $notGoals;
+            });
+        }
+
+        $calculateProviders = function(Odds $odds, string $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                $goalKey = 'goals' . $odds->getDparam1();
+
+                if (! isset($providers[$goalKey]['goals'])) {
+                    $providers[$goalKey]['goals'] = $odds->getDparam1();
+                }
+
+                if (! isset($providers[$goalKey]['providers'][$offer->getProvider()->getId()])) {
+                    $providers[$goalKey]['providers'][$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$goalKey]['providers'][$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($over as $overGoals) {
+            $calculateProviders($overGoals, 'over');
+        }
+
+        foreach ($under as $underGoals) {
+            $calculateProviders($underGoals, 'under');
+        }
+
+        $overunder = [];
+        foreach ($providers as $provider) {
+            $odds = [];
+            foreach ($provider['providers'] as $pvd) {
+                $odds[] = new OverUnderOdds($pvd['provider'], $pvd['over'] ?? null, $pvd['under'] ?? null);
+            }
+            $overunder[] = new OverUnderGoalsOdds($provider['goals'], $odds);
+        }
+
+        usort($overunder, function (OverUnderGoalsOdds $a, OverUnderGoalsOdds $b) {
+            return $a->getGoals() <=> $b->getGoals();
+        });
+
+        return $overunder;
+    }
+
+    /**
+     * @param float $numberGoals
+     *
+     * @return OverUnderGoalsOdds
+     */
+    public function getOrdOverUnderGoals(float $numberGoals): OverUnderGoalsOdds
+    {
+        /** @var Odds[] $over */
+        $over = array_filter($this->getOrdOverGoals(), function(Odds $odds) use ($numberGoals) {
+            return $odds->getDparam1() === $numberGoals;
+        });
+
+        /** @var Odds[] $under */
+        $under = array_filter($this->getOrdUnderGoals(), function(Odds $odds) use ($numberGoals) {
+            return $odds->getDparam1() === $numberGoals;
+        });
+
+        $providers = [];
+
+        $calculateProviders = function(Odds $odds, string $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                $goalKey = 'goals' . $odds->getDparam1();
+
+                if (! isset($providers[$goalKey]['goals'])) {
+                    $providers[$goalKey]['goals'] = $odds->getDparam1();
+                }
+
+                if (! isset($providers[$goalKey]['providers'][$offer->getProvider()->getId()])) {
+                    $providers[$goalKey]['providers'][$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$goalKey]['providers'][$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($over as $overGoals) {
+            $calculateProviders($overGoals, 'over');
+        }
+
+        foreach ($under as $underGoals) {
+            $calculateProviders($underGoals, 'under');
+        }
+
+        $overunder = null;
+        foreach ($providers as $provider) {
+            $odds = [];
+            foreach ($provider['providers'] as $pvd) {
+                $odds[] = new OverUnderOdds($pvd['provider'], $pvd['over'], $pvd['under']);
+            }
+            $overunder = new OverUnderGoalsOdds($provider['goals'], $odds);
+        }
+
+        return $overunder;
+    }
+
+    /**
      * Over/Under - (ordinare time) - Over
      * (the number is the dparam1 in the odds object)
      *
@@ -284,12 +498,16 @@ class Event
     public function getOrdOverGoals(): array
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
+            $fraction = $odds->getDparam1() - floor($odds->getDparam1());
             return
                 $odds->getSubtype() === 'over'
                 &&
                 $odds->getType() === 'ou' && $odds->getScope() === 'ord'
+                &&
+                ($fraction === 0 || $fraction === 0.5)
                 ;
         });
+
         return array_values($filtered);
     }
 
@@ -302,13 +520,134 @@ class Event
     public function getOrdUnderGoals(): array
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
+            $fraction = $odds->getDparam1() - floor($odds->getDparam1());
             return
                 $odds->getSubtype() === 'under'
                 &&
                 $odds->getType() === 'ou' && $odds->getScope() === 'ord'
+                &&
+                ($fraction === 0 || $fraction === 0.5)
                 ;
         });
         return array_values($filtered);
+    }
+
+    /**
+     * @param float $notGoals
+     *
+     * @return OverUnderGoalsOdds[]
+     */
+    public function get1HOverUnderAll(float $notGoals = null): array
+    {
+        $providers = [];
+
+        $over = $this->get1HOverGoals();
+        $under = $this->get1HUnderGoals();
+        if ($notGoals) {
+            /** @var Odds[] $over */
+            $over = array_filter($over, function(Odds $odds) use ($notGoals) {
+                return $odds->getDparam1() !== $notGoals;
+            });
+
+            /** @var Odds[] $under */
+            $under = array_filter($under, function(Odds $odds) use ($notGoals) {
+                return $odds->getDparam1() !== $notGoals;
+            });
+        }
+
+        $calculateProviders = function(Odds $odds, string $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                $goalKey = 'goals' . $odds->getDparam1();
+
+                if (! isset($providers[$goalKey]['goals'])) {
+                    $providers[$goalKey]['goals'] = $odds->getDparam1();
+                }
+
+                if (! isset($providers[$goalKey]['providers'][$offer->getProvider()->getId()])) {
+                    $providers[$goalKey]['providers'][$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$goalKey]['providers'][$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($over as $overGoals) {
+            $calculateProviders($overGoals, 'over');
+        }
+
+        foreach ($under as $underGoals) {
+            $calculateProviders($underGoals, 'under');
+        }
+
+        $overunder = [];
+        foreach ($providers as $provider) {
+            $odds = [];
+            foreach ($provider['providers'] as $pvd) {
+                $odds[] = new OverUnderOdds($pvd['provider'], $pvd['over'], $pvd['under']);
+            }
+            $overunder[] = new OverUnderGoalsOdds($provider['goals'], $odds);
+        }
+
+        return $overunder;
+    }
+
+    /**
+     * @param float $numberGoals
+     *
+     * @return OverUnderGoalsOdds
+     */
+    public function get1HOverUnderGoals(float $numberGoals): OverUnderGoalsOdds
+    {
+        /** @var Odds[] $over */
+        $over = array_filter($this->get1HOverGoals(), function(Odds $odds) use ($numberGoals) {
+            return $odds->getDparam1() === $numberGoals;
+        });
+
+        /** @var Odds[] $under */
+        $under = array_filter($this->get1HUnderGoals(), function(Odds $odds) use ($numberGoals) {
+            return $odds->getDparam1() === $numberGoals;
+        });
+
+        $providers = [];
+
+        $calculateProviders = function(Odds $odds, string $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                $goalKey = 'goals' . $odds->getDparam1();
+
+                if (! isset($providers[$goalKey]['goals'])) {
+                    $providers[$goalKey]['goals'] = $odds->getDparam1();
+                }
+
+                if (! isset($providers[$goalKey]['providers'][$offer->getProvider()->getId()])) {
+                    $providers[$goalKey]['providers'][$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$goalKey]['providers'][$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($over as $overGoals) {
+            $calculateProviders($overGoals, 'over');
+        }
+
+        foreach ($under as $underGoals) {
+            $calculateProviders($underGoals, 'under');
+        }
+
+        $overunder = null;
+        foreach ($providers as $provider) {
+            $odds = [];
+            foreach ($provider['providers'] as $pvd) {
+                $odds[] = new OverUnderOdds($pvd['provider'], $pvd['over'], $pvd['under']);
+            }
+            $overunder = new OverUnderGoalsOdds($provider['goals'], $odds);
+        }
+
+        return $overunder;
     }
 
     /**
@@ -320,10 +659,13 @@ class Event
     public function get1HOverGoals(): array
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
+            $fraction = $odds->getDparam1() - floor($odds->getDparam1());
             return
                 $odds->getSubtype() === 'over'
                 &&
                 $odds->getType() === 'ou' && $odds->getScope() === '1h'
+                &&
+                ($fraction === 0 || $fraction === 0.5)
                 ;
         });
         return array_values($filtered);
@@ -338,10 +680,13 @@ class Event
     public function get1HUnderGoals(): array
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
+            $fraction = $odds->getDparam1() - floor($odds->getDparam1());
             return
                 $odds->getSubtype() === 'under'
                 &&
                 $odds->getType() === 'ou' && $odds->getScope() === '1h'
+                &&
+                ($fraction === 0 || $fraction === 0.5)
                 ;
         });
         return array_values($filtered);
@@ -388,6 +733,63 @@ class Event
     }
 
     /**
+     * @return MatchWinnerHandicapOdds[]
+     */
+    public function getOrd1x2OddsHandicap(): array
+    {
+        $providers = [];
+
+        $doOdds = function(Handicap $handicap, $key) use (&$providers) {
+            if (! isset($providers[$handicap->getHandicap()])) {
+                $providers[$handicap->getHandicap()] = [
+                    'handicap' => $handicap,
+                    'odds' => []
+                ];
+            }
+
+            foreach ($handicap->getOffers() as $offer) {
+                if (! isset($providers[$handicap->getHandicap()]['odds'][$offer->getProvider()->getId()])) {
+                    $providers[$handicap->getHandicap()]['odds'][$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$handicap->getHandicap()]['odds'][$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($this->getOrd1x2HomeTeamOddsHandicap() as $odds) {
+            $doOdds($odds, 'home');
+        }
+
+        foreach ($this->getOrd1x2DrawHandicap() as $odds) {
+            $doOdds($odds, 'draw');
+        }
+
+        foreach ($this->getOrd1x2AwayTeamOddsHandicap() as $odds) {
+            $doOdds($odds, 'away');
+        }
+
+        ksort($providers);
+
+        $odds = [];
+        foreach ($providers as $handicap) {
+            $handicapOdds = [];
+            foreach ($handicap['odds'] as $provider) {
+                $handicapOdds[] = new MatchWinnerOdds(
+                    $provider['provider'],
+                    $provider['home'] ?? null,
+                    $provider['draw'] ?? null,
+                    $provider['away'] ?? null
+                );
+            }
+            $odds[] = new MatchWinnerHandicapOdds($handicap['handicap'], $handicapOdds);
+        }
+
+        return $odds;
+    }
+
+    /**
      * @return Handicap[]
      */
     public function getOrd1x2HomeTeamOddsHandicap(): array
@@ -427,6 +829,11 @@ class Event
             $team = $this->getParticipants()[0]->getId() === $filter->getIparam1() ? $this->getParticipants()[0] : $this->getParticipants()[1];
             $handicaps[] = new Handicap($this, $team, $filter->getDparam1(), $filter->getOffers());
         }
+
+        usort($handicaps, function(Handicap $a, Handicap $b) {
+            return $a->getHandicap() <=> $b->getHandicap();
+        });
+
         return $handicaps;
     }
 
@@ -450,6 +857,39 @@ class Event
             $handicaps[] = new Handicap($this, $this->getParticipants()[0], $filter->getDparam1(), $filter->getOffers());
         }
         return $handicaps;
+    }
+
+    /**
+     * @return MatchWinnerOdds[]
+     */
+    public function getOrdDC(): array
+    {
+        $providers = [];
+        $setOffer = function(Odds $odds, $key) use (&$providers) {
+            foreach ($odds->getOffers() as $offer) {
+                if (! isset($providers[$offer->getProvider()->getId()])) {
+                    $providers[$offer->getProvider()->getId()] = [
+                        'provider' => $offer->getProvider(),
+                    ];
+                }
+
+                $providers[$offer->getProvider()->getId()][$key] = $offer;
+            }
+        };
+
+        foreach ($this->getOrdHomeDC() as $odds) {
+            $setOffer($odds, 'home');
+        }
+
+        foreach ($this->getOrdAwayDC() as $odds) {
+            $setOffer($odds, 'away');
+        }
+
+        $odds = [];
+        foreach ($providers as $provider) {
+            $odds[] = new MatchWinnerOdds($provider['provider'], $provider['home'], null, $provider['away']);
+        }
+        return $odds;
     }
 
     /**
