@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Odds;
 
 class MatchWinnerOdds
 {
-
     /**
      * @var Provider
      */
@@ -58,5 +57,4 @@ class MatchWinnerOdds
     {
         return $this->awayOffer;
     }
-
 }

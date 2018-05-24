@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Odds;
 
 class OverUnderOdds
 {
-
     /**
      * @var Provider
      */
@@ -50,5 +49,4 @@ class OverUnderOdds
     {
         return $this->under;
     }
-
 }

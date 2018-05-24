@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Odds;
 
 class MatchWinnerHandicapOdds
 {
-
     /**
      * @var Handicap
      */
@@ -37,5 +36,4 @@ class MatchWinnerHandicapOdds
     {
         return $this->winnerOdds;
     }
-
 }

@@ -4,7 +4,6 @@ namespace SDM\Enetpulse\Model\Odds;
 
 class OverUnderGoalsOdds
 {
-
     /**
      * @var float
      */
@@ -40,5 +39,4 @@ class OverUnderGoalsOdds
     {
         return $this->odds;
     }
-
 }
