@@ -64,6 +64,11 @@ class Offer
 
     public function getOdds(): float
     {
+        return round($this->odds, 2);
+    }
+
+    public function getRawOdds(): float
+    {
         return $this->odds;
     }
 
