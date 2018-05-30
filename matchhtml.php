@@ -10,11 +10,19 @@ require __DIR__ . '/vendor/autoload.php';
 
 $dsn = include __DIR__ . '/dsn.php';
 $config = new Configuration($dsn);
+$config->setSports([1]);
+$config->setOddsProviderCountryNames(['International', 'Denmark']);
+$config->setOddsProviders([23]);
 $generator = new Generator($config);
 
 // $tournaments = $generator->getTournamentProvider()->getTournaments(null, false);
 
-$event = $generator->getEventProvider()->getEvent(2059521);
+$ord1x2Odds = $events->getOrd1x2Odds();
+foreach ($ord1x2Odds as $odds) {
+    echo $odds->getProvider()->getId();
+}
+
+exit;
 
 /**
  * Function to translate our text

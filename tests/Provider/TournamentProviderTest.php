@@ -175,7 +175,7 @@ class TournamentProviderTest extends AbstractProviderTest
         $config = $this->configuration;
         $config->setSports([1]);
         $tournaments = $this->getProvider(null, $config)->getTournaments();
-        $this->assertCount(2, $tournaments);
+        $this->assertCount(4, $tournaments);
     }
 
     /**
@@ -185,7 +185,7 @@ class TournamentProviderTest extends AbstractProviderTest
     public function testMysqlGetActiveTournaments(): void
     {
         $tournaments = $this->getProvider(null)->getTournaments(null, true);
-        $this->assertCount(2, $tournaments);
+        $this->assertCount(4, $tournaments);
     }
 
     /**

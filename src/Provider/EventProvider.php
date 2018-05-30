@@ -286,6 +286,8 @@ class EventProvider extends AbstractProvider
             // Sport
             ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
+            // Event Participiants
+            ->innerJoin('e', 'event_participants', 'eptmp', 'e.id = eptmp.eventFK')
         ;
 
         if ($sports = $this->configuration->getSports()) {
