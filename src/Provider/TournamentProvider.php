@@ -16,14 +16,15 @@ class TournamentProvider extends AbstractProvider
     private static $tournaments = [];
 
     /**
-     * @param bool  $onlyActive
      * @param Sport $sport
      *
+     * @param bool $isEnded
+     * @param bool $onlyActive
      * @return Tournament[]
      */
-    public function getTournaments(Sport $sport = null, bool $onlyActive = true): array
+    public function getTournaments(Sport $sport = null, bool $isEnded = true, bool $onlyActive = false): array
     {
-        $qb = $this->queryBuilder($onlyActive);
+        $qb = $this->queryBuilder($onlyActive, $isEnded);
         if ($sport) {
             $qb->andWhere(
                 $qb->expr()->eq('tt.sportFk', ':sport')
@@ -35,14 +36,15 @@ class TournamentProvider extends AbstractProvider
     }
 
     /**
-     * @param int  $templateId
+     * @param int $templateId
+     * @param bool $isEnded
      * @param bool $onlyActive
      *
      * @return Tournament[]
      */
-    public function getTournamentsByTemplate(int $templateId, bool $onlyActive = true): array
+    public function getTournamentsByTemplate(int $templateId, bool $isEnded = true, bool $onlyActive = true): array
     {
-        $qb = $this->queryBuilder($onlyActive);
+        $qb = $this->queryBuilder($onlyActive, $isEnded);
         $qb->andWhere(
             $qb->expr()->eq('tt.id', ':templateId')
         );
@@ -52,15 +54,16 @@ class TournamentProvider extends AbstractProvider
     }
 
     /**
-     * @param string     $country
+     * @param string $country
      * @param Sport|null $sport
-     * @param bool       $onlyActive
+     * @param bool $isEnded
+     * @param bool $onlyActive
      *
      * @return Tournament[]
      */
-    public function getTournamentsByCountry(string $country, Sport $sport = null, bool $onlyActive = true): array
+    public function getTournamentsByCountry(string $country, Sport $sport = null, bool $isEnded = true, bool $onlyActive = true): array
     {
-        $qb = $this->queryBuilder($onlyActive);
+        $qb = $this->queryBuilder($onlyActive, $isEnded);
         $qb->andWhere(
             $qb->expr()->eq('country.name', ':country')
         );
@@ -78,7 +81,7 @@ class TournamentProvider extends AbstractProvider
 
     public function getTournamentByStageId(int $tournamentStageId): ?Tournament
     {
-        $qb = $this->queryBuilder(false);
+        $qb = $this->queryBuilder(false, false);
         $qb->andWhere(
             $qb->expr()->eq('ts.id', ':stageId')
         );
@@ -89,7 +92,7 @@ class TournamentProvider extends AbstractProvider
 
     public function getTournamentByTournamentId(int $tournamentId): ?Tournament
     {
-        $qb = $this->queryBuilder(false);
+        $qb = $this->queryBuilder(false, false);
         $qb->andWhere(
             $qb->expr()->eq('t.id', ':seasonId')
         );
@@ -162,7 +165,7 @@ class TournamentProvider extends AbstractProvider
         self::$tournaments[$id] = $tournament;
     }
 
-    protected function queryBuilder(bool $onlyActive): QueryBuilder
+    protected function queryBuilder(bool $onlyActive, bool $isEnded): QueryBuilder
     {
         $qb = $this->getBuilder();
         // Tournament template
@@ -183,6 +186,10 @@ class TournamentProvider extends AbstractProvider
             ->innerJoin('tt', 'sport', 'sport', 'tt.sportFK = sport.id')
             ->addSelect('sport.id as sport_id', 'sport.name as sport_name')
         ;
+
+        if ($isEnded) {
+            $this->setDateHigherThanToday($qb, 'ts.enddate');
+        }
 
         if ($onlyActive) {
             $this->setDateBetweenStartEndField($qb, 'ts.startdate', 'ts.enddate');

@@ -12,7 +12,9 @@ $dsn = include __DIR__ . '/dsn.php';
 $config = new Configuration($dsn);
 $generator = new Generator($config);
 
-$event = $generator->getEventProvider()->getEvent(2747589);
+// $tournaments = $generator->getTournamentProvider()->getTournaments(null, false);
+
+$event = $generator->getEventProvider()->getEvent(2059521);
 
 /**
  * Function to translate our text

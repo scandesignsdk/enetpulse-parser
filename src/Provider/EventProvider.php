@@ -259,7 +259,7 @@ class EventProvider extends AbstractProvider
     /**
      * @param int|null                     $limit
      * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $stages
+     * @param Tournament\TournamentStage[]|int[] $stages
      * @param BetweenDate|null             $betweenDate
      *
      * @return QueryBuilder
@@ -303,8 +303,12 @@ class EventProvider extends AbstractProvider
         }
 
         if ($stages) {
-            $qb->andWhere($qb->expr()->in('ts.id', array_map(function (Tournament\TournamentStage $stage) {
-                return $stage->getId();
+            $qb->andWhere($qb->expr()->in('ts.id', array_map(function ($stage) {
+                $id = $stage;
+                if ($stage instanceof Tournament\TournamentStage) {
+                    $id = $stage->getId();
+                }
+                return $id;
             }, $stages)));
         }
 
