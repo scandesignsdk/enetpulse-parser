@@ -116,8 +116,12 @@ abstract class AbstractProvider implements ProviderInterface
         }
     }
 
-    protected function createImage($imageType, $imageDataValue): string
+    protected function createImage($imageType, $imageDataValue): ?string
     {
-        return sprintf('data:%s;base64,%s', $imageType, $imageDataValue);
+        if ($imageType && $imageDataValue) {
+            return sprintf('data:%s;base64,%s', $imageType, $imageDataValue);
+        }
+
+        return null;
     }
 }

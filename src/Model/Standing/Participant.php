@@ -20,12 +20,12 @@ class Participant
     private $type;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $country;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $image;
 
@@ -33,10 +33,10 @@ class Participant
      * @param int $id
      * @param string $name
      * @param string $type
-     * @param string $country
-     * @param string $image
+     * @param string|null $country
+     * @param string|null $image
      */
-    public function __construct(int $id, string $name, string $type, string $country, string $image)
+    public function __construct(int $id, string $name, string $type, ?string $country, ?string $image)
     {
         $this->id = $id;
         $this->name = $name;
@@ -60,12 +60,12 @@ class Participant
         return $this->type;
     }
 
-    public function getCountry(): string
+    public function getCountry(): ?string
     {
         return $this->country;
     }
 
-    public function getImage(): string
+    public function getImage(): ?string
     {
         return $this->image;
     }

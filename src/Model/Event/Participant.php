@@ -30,13 +30,13 @@ class Participant extends BaseParticipant
      * @param int      $id
      * @param string   $name
      * @param string   $type
-     * @param string   $country
-     * @param string   $image
+     * @param string|null   $country
+     * @param string|null   $image
      * @param Odds[]|null   $odds
      * @param Result[] $results
      * @param Event    $event
      */
-    public function __construct(int $id, string $name, string $type, string $country, string $image, array $odds = null, array $results, Event $event)
+    public function __construct(int $id, string $name, string $type, ?string $country, ?string $image, array $odds = null, array $results, Event $event)
     {
         parent::__construct($id, $name, $type, $country, $image);
         $this->odds = $odds;

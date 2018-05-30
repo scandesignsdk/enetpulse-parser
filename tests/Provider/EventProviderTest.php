@@ -26,7 +26,7 @@ class EventProviderTest extends AbstractProviderTest
     public function testGetUpcoming(): void
     {
         $upcoming = $this->getProvider(null)->getUpcomingEvents();
-        $this->assertCount(16, $upcoming);
+        $this->assertCount(8, $upcoming);
     }
 
     /**
@@ -37,7 +37,7 @@ class EventProviderTest extends AbstractProviderTest
     public function testGetFinishedResults(): void
     {
         $results = $this->getProvider(null)->getFinishedEvents();
-        $this->assertCount(30, $results);
+        $this->assertCount(15, $results);
     }
 
     /**
@@ -48,7 +48,7 @@ class EventProviderTest extends AbstractProviderTest
     public function testGetLive(): void
     {
         $results = $this->getProvider(null)->getLiveEvents();
-        $this->assertCount(2, $results);
+        $this->assertCount(1, $results);
     }
 
     /**
@@ -242,7 +242,7 @@ class EventProviderTest extends AbstractProviderTest
             ->willReturn(10392)
         ;
         $events = $this->getProvider(null)->getFinishedEvents(100, [$mock]);
-        $this->assertCount(16, $events);
+        $this->assertCount(8, $events);
     }
 
     /**
@@ -258,7 +258,7 @@ class EventProviderTest extends AbstractProviderTest
             ->willReturn(852199)
         ;
         $events = $this->getProvider(null)->getUpcomingEvents(100, [], [$mock]);
-        $this->assertCount(16, $events);
+        $this->assertCount(8, $events);
     }
 
     /**
@@ -273,7 +273,7 @@ class EventProviderTest extends AbstractProviderTest
             (new \DateTime())->setDate(2017, 5, 13)
         );
         $events = $this->getProvider(null)->getFinishedEvents(100, [], [], $betweenDate);
-        $this->assertCount(2, $events);
+        $this->assertCount(1, $events);
     }
 
     /**
@@ -312,7 +312,7 @@ class EventProviderTest extends AbstractProviderTest
     {
         $_ENV['MOCK_TODAY'] = '2017-05-16';
         $events = $this->getProvider(null)->getTodayEvents();
-        $this->assertCount(2, $events);
+        $this->assertCount(1, $events);
     }
 
     /**
@@ -324,7 +324,7 @@ class EventProviderTest extends AbstractProviderTest
     {
         $_ENV['MOCK_TODAY'] = '2017-05-16';
         $events = $this->getProvider(null)->getTomorrowEvents();
-        $this->assertCount(2, $events);
+        $this->assertCount(1, $events);
     }
 
     /**

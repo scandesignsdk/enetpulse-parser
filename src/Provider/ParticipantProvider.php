@@ -8,6 +8,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use SDM\Enetpulse\Model\Event;
 use SDM\Enetpulse\Model\Event\Participant;
 use SDM\Enetpulse\Model\Participant\Result;
+use SDM\Enetpulse\Utils\Utils;
 
 class ParticipantProvider extends AbstractProvider
 {
@@ -80,19 +81,18 @@ class ParticipantProvider extends AbstractProvider
             ->leftJoin('ep', 'result', 'r', 'r.event_participantsFK = ep.id')
             ->addSelect('r.value as r_value', 'r.result_code as r_result_code', 'r.ut as r_ut')
             // Logo
-            ->leftJoin('p', 'image', 'i', 'p.id = objectFK')
+            ->leftJoin('p', 'image', 'i', 'p.id = objectFK AND i.object = "participant" AND i.type = "logo"')
             ->addSelect('i.value as i_value', 'i.contenttype as i_contenttype')
         ;
 
         $qb
-            ->andWhere($qb->expr()->eq('i.object', '"participant"'))
-            ->andWhere($qb->expr()->eq('i.type', '"logo"'))
             ->andWhere($qb->expr()->eq('ep.eventFK', ':eventId'))
             ->setParameter(':eventId', $eventId)
             ->addOrderBy('ep.number', 'ASC')
         ;
 
         $this->removeDeleted($qb, ['ep', 'p', 'c', 'r']);
+
         return $qb;
     }
 }

@@ -12,17 +12,10 @@ $dsn = include __DIR__ . '/dsn.php';
 $config = new Configuration($dsn);
 $config->setSports([1]);
 $config->setOddsProviderCountryNames(['International', 'Denmark']);
-$config->setOddsProviders([23]);
+$config->setOddsProviders([23, 455, 457, 141]);
 $generator = new Generator($config);
 
-// $tournaments = $generator->getTournamentProvider()->getTournaments(null, false);
-
-$ord1x2Odds = $events->getOrd1x2Odds();
-foreach ($ord1x2Odds as $odds) {
-    echo $odds->getProvider()->getId();
-}
-
-exit;
+$events = $generator->getEventProvider()->getEvent(2059650);
 
 /**
  * Function to translate our text

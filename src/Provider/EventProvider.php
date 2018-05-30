@@ -15,8 +15,8 @@ class EventProvider extends AbstractProvider
 {
     /**
      * @param int                          $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      * @param BetweenDate|null             $betweenDate
      *
      * @return Event[]
@@ -35,8 +35,8 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int                          $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      * @param BetweenDate|null             $betweenDate
      *
      * @return Event[]
@@ -54,8 +54,8 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int|null                     $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      * @param BetweenDate|null             $betweenDate
      *
      * @return Event[]
@@ -73,8 +73,8 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int                          $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      *
      * @return Event[]
      */
@@ -93,8 +93,8 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int                          $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      *
      * @return Event[]
      */
@@ -112,8 +112,8 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int                          $limit
-     * @param Tournament[]                 $tournaments
-     * @param Tournament\TournamentStage[] $tournamentStages
+     * @param Tournament[]|int[]                 $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
      *
      * @return Event[]
      */
@@ -258,7 +258,7 @@ class EventProvider extends AbstractProvider
 
     /**
      * @param int|null                     $limit
-     * @param Tournament[]                 $tournaments
+     * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $stages
      * @param BetweenDate|null             $betweenDate
      *
@@ -299,8 +299,12 @@ class EventProvider extends AbstractProvider
         }
 
         if ($tournaments) {
-            $qb->andWhere($qb->expr()->in('t.id', array_map(function (Tournament $tournament) {
-                return $tournament->getId();
+            $qb->andWhere($qb->expr()->in('t.id', array_map(function ($tournament) {
+                $id = $tournament;
+                if ($tournament instanceof Tournament) {
+                    $id = $tournament->getId();
+                }
+                return $id;
             }, $tournaments)));
         }
 
@@ -323,6 +327,8 @@ class EventProvider extends AbstractProvider
         }
 
         $this->removeDeleted($qb, ['e', 'ts', 't', 'tt', 'sport', 'country']);
+        $qb->addGroupBy('e.id');
+
         return $qb;
     }
 }
