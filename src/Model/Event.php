@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace SDM\Enetpulse\Model;
 
 use SDM\Enetpulse\Model\Event\Participant;
+use SDM\Enetpulse\Model\Odds\AsianHandicap;
+use SDM\Enetpulse\Model\Odds\AsianHandicapOdds;
+use SDM\Enetpulse\Model\Odds\BothTeamScoresOdds;
 use SDM\Enetpulse\Model\Odds\HalftimeFullTime;
 use SDM\Enetpulse\Model\Odds\Handicap;
 use SDM\Enetpulse\Model\Odds\MatchWinnerHandicapOdds;
@@ -269,9 +272,9 @@ class Event
         foreach ($providers as $provider) {
             $odds[] = new MatchWinnerOdds(
                 $provider['provider'],
-                $provider['home'],
-                $provider['draw'],
-                $provider['away']
+                $provider['home'] ?? null,
+                $provider['draw'] ?? null,
+                $provider['away'] ?? null
             );
         }
 
@@ -699,28 +702,26 @@ class Event
      */
     public function getOrdAH(): array
     {
-        $isFractionAllowed = function (float $number) {
-            $whole = floor($number);
-            $fraction = $number - $whole;
-            return $fraction === 0 || $fraction === .5;
-        };
-
         $filtered = array_filter($this->odds, function (Odds $odds) {
+            $whole = floor($odds->getDparam1());
+            $fraction = $odds->getDparam1() - $whole;
+
             return
+                $odds->getType() === 'ah'
+                &&
                 $odds->getSubtype() === 'win'
                 &&
-                $odds->getType() === 'ah' && $odds->getScope() === 'ord'
-                ;
+                $odds->getScope() === 'ord'
+                && ($fraction === 0 || $fraction === .5)
+            ;
         });
 
         $handicaps = [];
         foreach ($filtered as $odds) {
-            if ($isFractionAllowed($odds->getDparam1())) {
-                foreach ($this->getParticipants() as $participant) {
-                    if ($participant->getId() === $odds->getIparam1()) {
-                        $handicaps[] = new Handicap($this, $participant, $odds->getDparam1(), $odds->getOffers());
-                        continue;
-                    }
+            foreach ($this->getParticipants() as $participant) {
+                if ($participant->getId() === $odds->getIparam1()) {
+                    $handicaps[] = new Handicap($this, $participant, $odds->getDparam1(), $odds->getOffers());
+                    continue;
                 }
             }
         }
@@ -730,6 +731,49 @@ class Event
         });
 
         return $handicaps;
+    }
+
+    /**
+     * @return AsianHandicapOdds[]
+     */
+    public function getOrdAsianHandicap(): array
+    {
+        $providers = [];
+        foreach ($this->getOrdAH() as $handicap) {
+            $key1 = $handicap->getHandicap();
+            if (!isset($providers[$key1])) {
+                $providers[$key1] = [
+                    'goals' => $handicap->getHandicap(),
+                    'providers' => [],
+                ];
+            }
+            foreach ($handicap->getOffers() as $offer) {
+                $key2 = $offer->getProvider()->getId();
+                if (!isset($providers[$key1]['providers'][$key2])) {
+                    $providers[$key1]['providers'][$key2] = [
+                        'provider' => $offer->getProvider(),
+                        'offer' => null,
+                    ];
+                }
+
+                $providers[$key1]['providers'][$key2]['offer'] = $offer;
+            }
+        }
+
+        $out = [];
+        foreach ($providers as $items) {
+            $ah = new AsianHandicapOdds($items['goals']);
+            foreach ($items['providers'] as $item) {
+                $ah->addOdds(new AsianHandicap($item['provider'], $item['offer']));
+            }
+            $out[] = $ah;
+        }
+
+        usort($out, function (AsianHandicapOdds $a, AsianHandicapOdds $b) {
+            return $a->getGoals() <=> $b->getGoals();
+        });
+
+        return $out;
     }
 
     /**
@@ -960,10 +1004,12 @@ class Event
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
             return
-                $odds->getSubtype() === 'yes'
+                $odds->getType() === 'bts'
                 &&
-                $odds->getType() === 'bts' && $odds->getScope() === 'ord'
-                ;
+                $odds->getScope() === 'ord'
+                &&
+                $odds->getSubtype() === 'no'
+            ;
         });
         return array_values($filtered);
     }
@@ -975,11 +1021,50 @@ class Event
     {
         $filtered = array_filter($this->odds, function (Odds $odds) {
             return
-                $odds->getSubtype() === 'no'
+                $odds->getType() === 'bts'
                 &&
-                $odds->getType() === 'bts' && $odds->getScope() === 'ord'
-                ;
+                $odds->getScope() === 'ord'
+                &&
+                $odds->getSubtype() === 'yes'
+            ;
         });
         return array_values($filtered);
+    }
+
+    /**
+     * @return BothTeamScoresOdds[]
+     */
+    public function getOrdBothTeamScores(): array
+    {
+        $bts = [];
+
+        /**
+         * @param Odds[] $odds
+         * @param string $key
+         */
+        $merge = function (array $odds, string $key) use (&$bts) {
+            foreach ($odds as $item) {
+                foreach ($item->getOffers() as $offer) {
+                    if (!isset($bts[$offer->getProvider()->getId()])) {
+                        $bts[$offer->getProvider()->getId()] = [
+                            'provider' => $offer->getProvider(),
+                            'yes' => null,
+                            'no' => null,
+                        ];
+                    }
+                    $bts[$offer->getProvider()->getId()][$key] = $offer;
+                }
+            }
+        };
+
+        $merge($this->getOrdBothTeamScoresYes(), 'yes');
+        $merge($this->getOrdBothTeamScoresNo(), 'no');
+
+        $out = [];
+        foreach ($bts as $bt) {
+            $out[] = new BothTeamScoresOdds($bt['provider'], $bt['yes'], $bt['no']);
+        }
+
+        return $out;
     }
 }

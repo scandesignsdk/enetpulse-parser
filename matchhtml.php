@@ -10,12 +10,9 @@ require __DIR__ . '/vendor/autoload.php';
 
 $dsn = include __DIR__ . '/dsn.php';
 $config = new Configuration($dsn);
-$config->setSports([1]);
-$config->setOddsProviderCountryNames(['International', 'Denmark']);
-$config->setOddsProviders([23, 455, 457, 141]);
 $generator = new Generator($config);
 
-$events = $generator->getEventProvider()->getEvent(2059650);
+$event = $generator->getEventProvider()->getEvent(2059521);
 
 /**
  * Function to translate our text

@@ -14,16 +14,35 @@ use SDM\Enetpulse\Utils\Utils;
 class EventProvider extends AbstractProvider
 {
     /**
-     * @param int                          $limit
-     * @param Tournament[]|int[]                 $tournaments
+     * @param int $limit
+     * @param Tournament[]|int[] $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
-     * @param BetweenDate|null             $betweenDate
+     * @param Sport[]|int[] $sports
+     * @param BetweenDate|null $betweenDate
      *
      * @return Event[]
      */
-    public function getUpcomingEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = [], ?BetweenDate $betweenDate = null): array
     {
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $betweenDate);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $betweenDate);
+        $qb->addOrderBy('e.startdate', 'ASC');
+        $qb->addOrderBy('e.id', 'DESC');
+
+        return $this->createEvents($qb);
+    }
+
+    /**
+     * @param int $limit
+     * @param Tournament[]|int[] $tournaments
+     * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
+     * @param BetweenDate|null $betweenDate
+     *
+     * @return Event[]
+     */
+    public function getUpcomingEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = [], ?BetweenDate $betweenDate = null): array
+    {
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $betweenDate);
         $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
         $qb->setParameter(':status', 'notstarted');
         $this->setDateHigherThanToday($qb, 'e.startdate');
@@ -37,13 +56,14 @@ class EventProvider extends AbstractProvider
      * @param int                          $limit
      * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
      * @param BetweenDate|null             $betweenDate
      *
      * @return Event[]
      */
-    public function getFinishedEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getFinishedEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = [], ?BetweenDate $betweenDate = null): array
     {
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $betweenDate);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $betweenDate);
         $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
         $qb->setParameter(':status', 'finished');
         $qb->addOrderBy('e.startdate', 'DESC');
@@ -56,13 +76,14 @@ class EventProvider extends AbstractProvider
      * @param int|null                     $limit
      * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
      * @param BetweenDate|null             $betweenDate
      *
      * @return Event[]
      */
-    public function getLiveEvents(?int $limit = null, array $tournaments = [], array $tournamentStages = [], ?BetweenDate $betweenDate = null): array
+    public function getLiveEvents(?int $limit = null, array $tournaments = [], array $tournamentStages = [], array $sports = [], ?BetweenDate $betweenDate = null): array
     {
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $betweenDate);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $betweenDate);
         $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
         $qb->setParameter(':status', 'inprogress');
         $qb->addOrderBy('e.startdate', 'ASC');
@@ -75,17 +96,18 @@ class EventProvider extends AbstractProvider
      * @param int                          $limit
      * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
      *
      * @return Event[]
      */
-    public function getYesterdayEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = []): array
+    public function getYesterdayEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = []): array
     {
         $between = new BetweenDate(
             Utils::getToday()->sub(new \DateInterval('P1D'))->setTime(0, 0, 0),
             Utils::getToday()->sub(new \DateInterval('P1D'))->setTime(23, 59, 59)
         );
 
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $between);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $between);
         $qb->addOrderBy('e.startdate', 'DESC');
 
         return $this->createEvents($qb);
@@ -95,16 +117,17 @@ class EventProvider extends AbstractProvider
      * @param int                          $limit
      * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
      *
      * @return Event[]
      */
-    public function getTodayEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = []): array
+    public function getTodayEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = []): array
     {
         $between = new BetweenDate(
             Utils::getToday()->setTime(0, 0, 0),
             Utils::getToday()->setTime(23, 59, 59)
         );
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $between);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $between);
         $qb->addOrderBy('e.startdate', 'ASC');
 
         return $this->createEvents($qb);
@@ -114,16 +137,17 @@ class EventProvider extends AbstractProvider
      * @param int                          $limit
      * @param Tournament[]|int[]                 $tournaments
      * @param Tournament\TournamentStage[]|int[] $tournamentStages
+     * @param Sport[]|int[] $sports
      *
      * @return Event[]
      */
-    public function getTomorrowEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = []): array
+    public function getTomorrowEvents(int $limit = 30, array $tournaments = [], array $tournamentStages = [], array $sports = []): array
     {
         $between = new BetweenDate(
             Utils::getToday()->add(new \DateInterval('P1D'))->setTime(0, 0, 0),
             Utils::getToday()->add(new \DateInterval('P1D'))->setTime(23, 59, 59)
         );
-        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $between);
+        $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $between);
         $qb->addOrderBy('e.startdate', 'ASC');
 
         return $this->createEvents($qb);
@@ -257,14 +281,16 @@ class EventProvider extends AbstractProvider
     }
 
     /**
-     * @param int|null                     $limit
-     * @param Tournament[]|int[]                 $tournaments
+     * @param int|null $limit
+     * @param Tournament[]|int[] $tournaments
      * @param Tournament\TournamentStage[]|int[] $stages
-     * @param BetweenDate|null             $betweenDate
+     * @param Sport[]|int[] $sports
+     * @param BetweenDate|null $betweenDate
      *
      * @return QueryBuilder
+     * @throws \Doctrine\DBAL\DBALException
      */
-    protected function queryBuilder(?int $limit, array $tournaments = [], array $stages = [], ?BetweenDate $betweenDate = null): QueryBuilder
+    protected function queryBuilder(?int $limit, array $tournaments = [], array $stages = [], array $sports = [], ?BetweenDate $betweenDate = null): QueryBuilder
     {
         $qb = $this->getBuilder();
         $qb
@@ -290,8 +316,18 @@ class EventProvider extends AbstractProvider
             ->innerJoin('e', 'event_participants', 'eptmp', 'e.id = eptmp.eventFK')
         ;
 
-        if ($sports = $this->configuration->getSports()) {
-            $qb->andWhere($qb->expr()->in('sport.id', $sports));
+        if ($configsports = $this->configuration->getSports()) {
+            $qb->andWhere($qb->expr()->in('sport.id', $configsports));
+        }
+
+        if ($sports) {
+            $qb->andWhere($qb->expr()->in('sport.id', array_map(function ($sport) {
+                $id = $sport;
+                if ($sport instanceof Sport) {
+                    $id = $sport->getId();
+                }
+                return $id;
+            }, $sports)));
         }
 
         if ($tournamentTemplates = $this->configuration->getTournamentTemplates()) {

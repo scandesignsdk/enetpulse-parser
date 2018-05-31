@@ -36,4 +36,23 @@ class MatchWinnerHandicapOdds
     {
         return $this->winnerOdds;
     }
+
+    /**
+     * Calculate the handicap score
+     *
+     * @return string
+     */
+    public function calculateHandicap(): string
+    {
+        $homeScore = 0;
+        $awayScore = 0;
+
+        if ($this->getHandicap()->getHandicap() > 0) {
+            $homeScore = $this->getHandicap()->getHandicap();
+        } elseif ($this->getHandicap()->getHandicap() < 0) {
+            $awayScore = abs($this->getHandicap()->getHandicap());
+        }
+
+        return $homeScore . ' - ' . $awayScore;
+    }
 }

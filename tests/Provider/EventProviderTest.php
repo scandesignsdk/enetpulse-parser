@@ -272,7 +272,7 @@ class EventProviderTest extends AbstractProviderTest
             (new \DateTime())->setDate(2017, 5, 12)->setTime(17, 30, 0),
             (new \DateTime())->setDate(2017, 5, 13)
         );
-        $events = $this->getProvider(null)->getFinishedEvents(100, [], [], $betweenDate);
+        $events = $this->getProvider(null)->getFinishedEvents(100, [], [], [], $betweenDate);
         $this->assertCount(1, $events);
     }
 
@@ -287,7 +287,7 @@ class EventProviderTest extends AbstractProviderTest
             (new \DateTime())->setDate(2017, 5, 12)->setTime(18, 30, 0),
             (new \DateTime())->setDate(2017, 5, 13)
         );
-        $events = $this->getProvider(null)->getFinishedEvents(100, [], [], $betweenDate);
+        $events = $this->getProvider(null)->getFinishedEvents(100, [], [], [], $betweenDate);
         $this->assertCount(0, $events);
     }
 

@@ -80,7 +80,7 @@ $generator = new Generator($config);
 //echo $output->fetch();
 
 
-$event = $generator->getEventProvider()->getEvent(2747589);
+$event = $generator->getEventProvider()->getEvent(2059521);
 
 echo "----- EVENT -----\n";
 echo implode(' - ', array_map(function(Participant $part) { return $part->getName(); }, $event->getParticipants()));
@@ -377,7 +377,6 @@ $events = $generator->getEventProvider()->getLatestMatchesBetween($event->getPar
 foreach ($events as $latestBetween) {
     echo $latestBetween->getStartDate()->format('Y-m-d H:i') . ' - ' . implode(' - ', array_map(function(Participant $participant) { return $participant->getName(); }, $latestBetween->getParticipants())) . "\n";
 }
-
 
 /**
  * AH (Asian Handicap)

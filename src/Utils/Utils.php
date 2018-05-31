@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SDM\Enetpulse\Utils;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use SDM\Enetpulse\Model\Event;
 
 class Utils
 {
@@ -67,5 +68,31 @@ class Utils
         }
 
         return new \DateTime();
+    }
+
+    /**
+     * @param Event[] $events
+     * @param bool $removeEventsNoOffers
+     *
+     * @return Event\TournamentEvents[]
+     */
+    public static function groupEventsByTournament(array $events, $removeEventsNoOffers = true): array
+    {
+        /** @var Event\TournamentEvents[] $stages */
+        $stages = [];
+        foreach ($events as $event) {
+            if ($removeEventsNoOffers && count($event->getOdds()) <= 0) {
+                continue;
+            }
+
+            $tid = $event->getStage()->getId();
+            if (!isset($stages[$tid])) {
+                $stages[$tid] = new Event\TournamentEvents($event->getStage());
+            }
+
+            $stages[$tid]->addEvent($event);
+        }
+
+        return $stages;
     }
 }
