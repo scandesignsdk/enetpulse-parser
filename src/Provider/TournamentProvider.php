@@ -7,6 +7,7 @@ namespace SDM\Enetpulse\Provider;
 use Doctrine\DBAL\Query\QueryBuilder;
 use SDM\Enetpulse\Model\Sport;
 use SDM\Enetpulse\Model\Tournament;
+use SDM\Enetpulse\Utils\Utils;
 
 class TournamentProvider extends AbstractProvider
 {
@@ -188,7 +189,7 @@ class TournamentProvider extends AbstractProvider
         ;
 
         if ($isEnded) {
-            $this->setDateHigherThanToday($qb, 'ts.enddate');
+            $this->setDateHigherOrEqualThanToday($qb, 'ts.enddate');
         }
 
         if ($onlyActive) {
@@ -212,6 +213,7 @@ class TournamentProvider extends AbstractProvider
         ;
 
         $this->removeDeleted($qb, ['ts', 'tt', 'country', 'sport']);
+
         return $qb;
     }
 }

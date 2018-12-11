@@ -45,7 +45,7 @@ class EventProvider extends AbstractProvider
         $qb = $this->queryBuilder($limit, $tournaments, $tournamentStages, $sports, $betweenDate);
         $qb->andWhere($qb->expr()->eq('e.status_type', ':status'));
         $qb->setParameter(':status', 'notstarted');
-        $this->setDateHigherThanToday($qb, 'e.startdate');
+        $this->setDateHigherOrEqualThanToday($qb, 'e.startdate');
         $qb->addOrderBy('e.startdate', 'ASC');
         $qb->addOrderBy('e.id', 'DESC');
 

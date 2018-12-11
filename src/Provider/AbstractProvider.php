@@ -81,6 +81,15 @@ abstract class AbstractProvider implements ProviderInterface
         ));
     }
 
+    protected function setDateHigherOrEqualThanToday(QueryBuilder $qb, string $field): void
+    {
+        $qb->andWhere(sprintf(
+            '(DATE_FORMAT(%s, "%%Y-%%m-%%d") >= "%s")',
+            $field,
+            Utils::getToday()->format('Y-m-d')
+        ));
+    }
+
     protected function setDateBetweenStartEndField(QueryBuilder $qb, string $startField, string $endField, ?\DateTime $date = null): void
     {
         if (!$date) {
