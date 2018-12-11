@@ -2,10 +2,10 @@
 
 namespace SDM\Enetpulse\Tests\Provider;
 
-use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use SDM\Enetpulse\Configuration;
@@ -73,15 +73,15 @@ abstract class AbstractProviderTest extends TestCase
                 ->setConstructorArgs([$configuration ?: $this->configuration])
                 ->getMock()
             ;
-            $mock->expects($this->any())
+            $mock
                 ->method('getBuilder')
                 ->willReturn($this->getQueryBuilder())
             ;
-            $mock->expects($this->any())
+            $mock
                 ->method('fetchObjects')
                 ->willReturn($return)
             ;
-            $mock->expects($this->any())
+            $mock
                 ->method('fetchSingle')
                 ->willReturn($return)
             ;
@@ -97,39 +97,39 @@ abstract class AbstractProviderTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $expr = $this->getMockBuilder(ExpressionBuilder::class)->disableOriginalConstructor()->getMock();
         $qb = $this->getMockBuilder(QueryBuilder::class)->setConstructorArgs([$connection])->getMock();
-        $qb->expects($this->any())
+        $qb
             ->method('expr')
             ->willReturn($expr)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('select')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('addSelect')
             ->willReturn($qb)
         ;
-        $qb->expects($this->once())
+        $qb
             ->method('from')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('where')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('setParameter')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('innerJoin')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('addOrderBy')
             ->willReturn($qb)
         ;
-        $qb->expects($this->any())
+        $qb
             ->method('andWhere')
             ->willReturn($qb)
         ;
